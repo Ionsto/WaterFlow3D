@@ -79,3 +79,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+SFML-2.5.1/
+eigen-eigen-9efe9e1c4612/
