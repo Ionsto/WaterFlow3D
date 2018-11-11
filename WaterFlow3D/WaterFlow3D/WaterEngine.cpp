@@ -132,28 +132,45 @@ WaterEngine::~WaterEngine()
 //	}
 //}
 
+void WaterEngine::ApplyForces(VoxelTree & tree) {
+	for (int x = 0; x < tree.Width; x++) {
+		for (int y = 0; y < tree.Width; y++) {
+			for (int z = 0; z < tree.Height; z++) {
+				tree.GetValue(x, y, z).Velocity += Vector3F(0, 0, -9.8) * tree.GetValue(x, y, z).Density;
+			}
+		}
+	}
+}
 void WaterEngine::EnforceBoundary(VoxelTree & tree) {
 	for (int xy = 0; xy < tree.Width; ++xy) {
 		for (int z = 0; z < tree.Height; ++z) {
 			tree.GetValueNew(xy, -1, z).Density = tree.GetValueNew(xy, 0, z).Density;
+			tree.GetValueNew(xy, -1, z).Velocity.Y = 0;
 			tree.GetValueNew(-1, xy, z).Density = tree.GetValueNew(0, xy, z).Density;
+			tree.GetValueNew(-1, xy, z).Velocity.Y = 0;
 			tree.GetValueNew(xy, tree.Width, z).Density = tree.GetValueNew(xy, tree.Width - 1, z).Density;
+			tree.GetValueNew(xy, tree.Width, z).Velocity.Y = 0;
 			tree.GetValueNew(tree.Width, xy, z).Density = tree.GetValueNew(tree.Width - 1, xy, z).Density;
+			tree.GetValueNew(tree.Width, xy, z).Velocity.Y = 0;
 		}
 	}
 	for (int x = 0; x < tree.Width; ++x) {
 		for (int y = 0; y < tree.Width; ++y) {
 			tree.GetValueNew(x, y, -1).Density = tree.GetValueNew(x, y, 0).Density;
+			tree.GetValueNew(x, y, -1).Velocity.Z = 0;
 			tree.GetValueNew(x, y, tree.Height).Density = tree.GetValueNew(x, y, tree.Height - 1).Density;
+			tree.GetValueNew(x, y, tree.Height).Velocity.Z = 0;
 		}
 	}
 }
+
 void WaterEngine::EnforceInflows(VoxelTree & tree) {
 	static constexpr float FlowRate = 1;
 	tree.GetValueNew(0, 0, 0).Density = FlowRate;
 	tree.GetValueNew(0, 0, 0).Velocity = Vector3F(1,0,0);
 	tree.GetValueNew(tree.Width, tree.Width, 0).Density = 0;	
 }
+
 void WaterEngine::DiffuseDensity(VoxelTree & tree) {
 	static constexpr float diff = 100;
 	static constexpr float a = DeltaTime * diff * tree.Width * tree.Width * tree.Height;
@@ -206,75 +223,98 @@ void WaterEngine::DiffuseVelocity(VoxelTree & tree) {
 	}
 }
 
+//void WaterEngine::ProjectVelocity(VoxelTree & tree) {
+//	static constexpr float diff = 1;
+//	static constexpr float h = 1.0 / tree.Width * tree.Width * tree.Height;
+//	for (int x = 0; x < tree.Width; x++) {
+//		for (int y = 0; y < tree.Width; y++) {
+//			for (int z = 0; z < tree.Height; z++) {
+//				tree.GetValue(x, y, z).Velocity.Y =
+//					-0.5 * h * (
+//						tree.GetValueNew(x + 1, y, z).Velocity.X +
+//						tree.GetValueNew(x, y + 1, z).Velocity.Y +
+//						tree.GetValueNew(x, y, z + 1).Velocity.Z -
+//						tree.GetValueNew(x - 1, y, z).Velocity.X -
+//						tree.GetValueNew(x, y - 1, z).Velocity.Y -
+//						tree.GetValueNew(x, y, z - 1).Velocity.Z
+//						);
+//				tree.GetValue(x, y, z).Velocity.X = 0;
+//				tree.GetValue(x, y, z).Velocity.Z = 0;
+//			}
+//		}
+//		tree.SwapBuffer();
+//		EnforceInflows(tree);
+//		EnforceBoundary(tree);
+//		tree.SwapBuffer();
+//		for (int k = 0; k < 20; k++) {
+//			for (int x = 0; x < tree.Width; x++) {
+//				for (int y = 0; y < tree.Width; y++) {
+//					for (int z = 0; z < tree.Height; z++) {
+//						tree.GetValue(x, y, z).Velocity.X =
+//							(
+//								tree.GetValue(x, y, z).Velocity.Y +
+//								(
+//									tree.GetValue(x + 1, y, z).Velocity.X +
+//									tree.GetValue(x, y + 1, z).Velocity.X +
+//									tree.GetValue(x, y, z + 1).Velocity.X +
+//									tree.GetValue(x - 1, y, z).Velocity.X +
+//									tree.GetValue(x, y - 1, z).Velocity.X +
+//									tree.GetValue(x, y, z - 1).Velocity.X
+//									)) / (6.0);
+//						tree.GetValue(x, y, z).Velocity.Z =
+//							(
+//								tree.GetValue(x, y, z).Velocity.Y +
+//								(
+//									tree.GetValue(x + 1, y, z).Velocity.Z +
+//									tree.GetValue(x, y + 1, z).Velocity.Z +
+//									tree.GetValue(x, y, z + 1).Velocity.Z +
+//									tree.GetValue(x - 1, y, z).Velocity.Z +
+//									tree.GetValue(x, y - 1, z).Velocity.Z +
+//									tree.GetValue(x, y, z - 1).Velocity.Z
+//									)) / (6.0);
+//					}
+//				}
+//			}
+//			tree.SwapBuffer();
+//			EnforceInflows(tree);
+//			EnforceBoundary(tree);
+//			tree.SwapBuffer();
+//		}
+//		for (int x = 0; x < tree.Width; x++) {
+//			for (int y = 0; y < tree.Width; y++) {
+//				for (int z = 0; z < tree.Height; z++) {
+//					tree.GetValueNew(x, y, z).Velocity.X -= 0.5*(tree.GetValue(x + 1, y, z).Velocity.X - tree.GetValue(x - 1, y, z).Velocity.X) / h;
+//					tree.GetValueNew(x, y, z).Velocity.Y -= 0.5*(tree.GetValue(x, y + 1, z).Velocity.Y - tree.GetValue(x, y - 1, z).Velocity.Y) / h;
+//					tree.GetValueNew(x, y, z).Velocity.Z -= 0.5*(tree.GetValue(x, y, z + 1).Velocity.Z - tree.GetValue(x, y, z - 1).Velocity.Z) / h;
+//				}
+//			}
+//		}
+//		EnforceInflows(tree);
+//		EnforceBoundary(tree);
+//	}
+//}
 void WaterEngine::ProjectVelocity(VoxelTree & tree) {
+
 	static constexpr float diff = 1;
 	static constexpr float h = 1.0 / tree.Width * tree.Width * tree.Height;
 	for (int x = 0; x < tree.Width; x++) {
 		for (int y = 0; y < tree.Width; y++) {
 			for (int z = 0; z < tree.Height; z++) {
-				tree.GetValue(x, y, z).Velocity.Y =
-					-0.5 * h * (
-						tree.GetValueNew(x + 1, y, z).Velocity.X +
-						tree.GetValueNew(x, y + 1, z).Velocity.Y +
-						tree.GetValueNew(x, y, z + 1).Velocity.Z -
-						tree.GetValueNew(x - 1, y, z).Velocity.X -
-						tree.GetValueNew(x, y - 1, z).Velocity.Y -
-						tree.GetValueNew(x, y, z - 1).Velocity.Z
-					);
-				tree.GetValue(x, y, z).Velocity.X = 0;
-				tree.GetValue(x, y, z).Velocity.Z = 0;
+				tree.GetValue(x, y, z).Velocity.X = 0.5 * (tree.GetValueNew(x + 1, y, z).Velocity.X - tree.GetValueNew(x - 1, y, z).Velocity.X);
+				tree.GetValue(x, y, z).Velocity.Y = 0.5 * (tree.GetValueNew(x, y + 1, z).Velocity.Y - tree.GetValueNew(x, y - 1, z).Velocity.Y);
+				tree.GetValue(x, y, z).Velocity.Z = 0.5 * (tree.GetValueNew(x , y, z + 1).Velocity.Z - tree.GetValueNew(x, y, z - 1).Velocity.Z);
 			}
 		}
-		tree.SwapBuffer();
-		EnforceInflows(tree);
-		EnforceBoundary(tree);
-		tree.SwapBuffer();
-		for (int k = 0; k < 20; k++) {
-			for (int x = 0; x < tree.Width; x++) {
-				for (int y = 0; y < tree.Width; y++) {
-					for (int z = 0; z < tree.Height; z++) {
-						tree.GetValue(x, y, z).Velocity.X =
-							(
-								tree.GetValue(x, y, z).Velocity.Y +
-								(
-									tree.GetValue(x + 1, y, z).Velocity.X +
-									tree.GetValue(x, y + 1, z).Velocity.X +
-									tree.GetValue(x, y, z + 1).Velocity.X +
-									tree.GetValue(x - 1, y, z).Velocity.X +
-									tree.GetValue(x, y - 1, z).Velocity.X +
-									tree.GetValue(x, y, z - 1).Velocity.X
-									)) / (6.0);
-						tree.GetValue(x, y, z).Velocity.Z =
-							(
-								tree.GetValue(x, y, z).Velocity.Y +
-								(
-									tree.GetValue(x + 1, y, z).Velocity.Z +
-									tree.GetValue(x, y + 1, z).Velocity.Z +
-									tree.GetValue(x, y, z + 1).Velocity.Z +
-									tree.GetValue(x - 1, y, z).Velocity.Z +
-									tree.GetValue(x, y - 1, z).Velocity.Z +
-									tree.GetValue(x, y, z - 1).Velocity.Z
-									)) / (6.0);
-					}
-				}
-			}
-			tree.SwapBuffer();
-			EnforceInflows(tree);
-			EnforceBoundary(tree);
-			tree.SwapBuffer();
-		}
-		for (int x = 0; x < tree.Width; x++) {
-			for (int y = 0; y < tree.Width; y++) {
-				for (int z = 0; z < tree.Height; z++) {
-					tree.GetValueNew(x, y, z).Velocity.X -= 0.5*(tree.GetValue(x + 1, y, z).Velocity.X - tree.GetValue(x - 1, y, z).Velocity.X) / h;
-					tree.GetValueNew(x, y, z).Velocity.Y -= 0.5*(tree.GetValue(x, y + 1, z).Velocity.Y - tree.GetValue(x, y - 1, z).Velocity.Y) / h;
-					tree.GetValueNew(x, y, z).Velocity.Z -= 0.5*(tree.GetValue(x, y, z + 1).Velocity.Z - tree.GetValue(x, y, z - 1).Velocity.Z) / h;
-				}
-			}
-		}
-		EnforceInflows(tree);
-		EnforceBoundary(tree);
 	}
+	for (int x = 0; x < tree.Width; x++) {
+		for (int y = 0; y < tree.Width; y++) {
+			for (int z = 0; z < tree.Height; z++) {
+				tree.GetValueNew(x, y, z).Velocity -= tree.GetValue(x, y, z).Velocity;
+			}
+		}
+	}
+	EnforceInflows(tree);
+	EnforceBoundary(tree);
 }
 
 void WaterEngine::AdvectDensity(VoxelTree & tree) {
@@ -295,7 +335,7 @@ void WaterEngine::AdvectDensity(VoxelTree & tree) {
 				float c0 = c00 * (1 - Vd.Y) + c10 * Vd.Y;
 				float c1 = c01 * (1 - Vd.Y) + c11 * Vd.Y;
 				//Could do some linear interp but cba
-				tree.GetValueNew(x, y, z).Density = c0 * (1 - Vd.Z) + c1 * Vd.Z;
+				tree.GetValue(x, y, z).Density = c0 * (1 - Vd.Z) + c1 * Vd.Z;
 			}
 		}
 	}
@@ -307,7 +347,7 @@ void WaterEngine::AdvectVelocity(VoxelTree & tree) {
 	for (int x = 0; x < tree.Width; x++) {
 		for (int y = 0; y < tree.Width; y++) {
 			for (int z = 0; z < tree.Height; z++) {
-				auto & vox = tree.GetValue(x, y, z);
+				auto & vox = tree.GetValueNew(x, y, z);
 				Vector3F BackTrace = vox.Velocity * DeltaTime;
 				Vector3F PrevPosition = Vector3F(x, y, z) - BackTrace;
 				Vector3F ClampedPrev = PrevPosition;
@@ -321,7 +361,7 @@ void WaterEngine::AdvectVelocity(VoxelTree & tree) {
 				Vector3F c0 = c00 * (1 - Vd.Y) + c10 * Vd.Y;
 				Vector3F c1 = c01 * (1 - Vd.Y) + c11 * Vd.Y;
 				//Could do some linear interp but cba
-				tree.GetValueNew(x, y, z).Velocity = c0 * (1 - Vd.Z) + c1 * Vd.Z;
+				tree.GetValue(x, y, z).Velocity = c0 * (1 - Vd.Z) + c1 * Vd.Z;
 			}
 		}
 	}
@@ -332,12 +372,19 @@ void WaterEngine::AdvectVelocity(VoxelTree & tree) {
 void WaterEngine::Update(VoxelTree & tree)
 {
 	DiffuseVelocity(tree);
-	//ProjectVelocity(tree);
+	ProjectVelocity(tree);
 	AdvectVelocity(tree);
-	//ProjectVelocity(tree);
+	ProjectVelocity(tree);
+	for (int x = 0; x < tree.Width; x++) {
+		for (int y = 0; y < tree.Width; y++) {
+			for (int z = 0; z < tree.Height; z++) {
+				tree.GetValue(x, y, z).Velocity = tree.GetValueNew(x, y, z).Velocity;
+			}
+		}
+	}
 	DiffuseDensity(tree);
 	AdvectDensity(tree);
-	tree.SwapBuffer();
+	//tree.SwapBuffer();
 	//UpdateVelocity();
 	////Multi track drifting
 	//UpdateHydrostaticStress(tree);

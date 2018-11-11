@@ -12,7 +12,7 @@ void PrintWaterSim(VoxelTree & tree,std::ofstream & out) {
 		for (int y = 0; y < tree.Width; ++y) {
 			for (int x = 0; x < tree.Width; ++x) {
 				VoxelData & voxel = tree.GetValue(x, y, z);
-				out << voxel.Density<<",";
+				out << voxel.Velocity.X<<",";
 			}
 			out <<";"<< std::endl;
 		}

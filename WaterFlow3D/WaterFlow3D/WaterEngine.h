@@ -8,6 +8,7 @@ private:
 public:
 	WaterEngine();
 	~WaterEngine();
+	void ApplyForces(VoxelTree & tree);
 	void EnforceBoundary(VoxelTree & tree);
 	void EnforceInflows(VoxelTree & tree);
 	void DiffuseDensity(VoxelTree & tree);

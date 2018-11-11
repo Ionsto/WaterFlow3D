@@ -9,6 +9,16 @@ struct Vector3F {
 	Vector3F operator-(Vector3F vec) {
 		return Vector3F(X - vec.X, Y - vec.Y, Z - vec.Z);
 	}
+	void operator-=(Vector3F vec) {
+		X -= vec.X;
+		Y -= vec.Y;
+		Z -= vec.Z;
+	}
+	void operator+=(Vector3F vec) {
+		X += vec.X;
+		Y += vec.Y;
+		Z += vec.Z;
+	}
 	Vector3F operator*(float v) {
 		return Vector3F(X * v, Y * v, Z * v);
 	}
