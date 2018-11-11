@@ -45,6 +45,9 @@
     <ClCompile Include="WaterEngine.cpp">
       <Filter>Source Files\GamePlay</Filter>
     </ClCompile>
+    <ClCompile Include="VoxelTree.cpp">
+      <Filter>Source Files\GamePlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h">
@@ -65,5 +68,8 @@
     <ClInclude Include="WaterEngine.h">
       <Filter>Header Files\GamePlay</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="plot.py" />
   </ItemGroup>
 </Project>

@@ -130,6 +130,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RenderSoftware.cpp" />
+    <ClCompile Include="VoxelTree.cpp" />
     <ClCompile Include="WaterEngine.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -140,6 +141,9 @@
     <ClInclude Include="VoxelTree.h" />
     <ClInclude Include="WaterEngine.h" />
     <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="plot.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
