@@ -35,10 +35,19 @@ struct Vector3F {
 	}
 };
 struct VoxelData {
-	char Type = 0;
+	enum class VoxelType {
+		Air,
+		Water,
+		Sand,
+		Boundary
+	} Type;
+	static constexpr float AirDensity = 0.1;
+	static constexpr float WaterDensity = 1;
+	static constexpr float SandDensity = 20;
 	float Density = 0;
 	float Pressure = 0;
 	Vector3F Velocity;
+	Vector3F Force;
 };
 class VoxelTree
 {

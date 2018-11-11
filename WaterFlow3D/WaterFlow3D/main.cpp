@@ -1,6 +1,7 @@
 #include "GameManager.h"
 #include "VoxelTree.h"
 #include "WaterEngine.h"
+#include "WaterEngineBinary.h"
 #include <iostream>
 #include <fstream>
 #include <windows.h>
@@ -12,7 +13,7 @@ void PrintWaterSim(VoxelTree & tree,std::ofstream & out) {
 		for (int y = 0; y < tree.Width; ++y) {
 			for (int x = 0; x < tree.Width; ++x) {
 				VoxelData & voxel = tree.GetValue(x, y, z);
-				out << voxel.Velocity.X<<",";
+				out << (voxel.Type == VoxelData::VoxelType::Water ? 1 : 0) <<",";
 			}
 			out <<";"<< std::endl;
 		}
@@ -53,7 +54,7 @@ void TestWaterSim()
 	std::cout << "Starting water sim" << std::endl;
 	auto OutFile = std::ofstream("out.txt");
 	VoxelTree tree;
-	WaterEngine waterengine;
+	WaterEngineBinary waterengine;
 	for (int t = 0; t < 200; ++t)
 	{
 		waterengine.Update(tree);
