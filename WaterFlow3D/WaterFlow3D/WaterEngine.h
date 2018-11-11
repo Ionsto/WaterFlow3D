@@ -12,6 +12,9 @@ public:
 	void EnforceInflows(VoxelTree & tree);
 	void DiffuseDensity(VoxelTree & tree);
 	void AdvectDensity(VoxelTree & tree);
+	void ProjectVelocity(VoxelTree & tree);
+	void DiffuseVelocity(VoxelTree & tree);
+	void AdvectVelocity(VoxelTree & tree);
 	//float CalculateStress(VoxelTree & tree, int x, int y, int z);
 	//void CalculateDensity(VoxelTree & tree, int x, int y, int z);
 	////float CalculateVelocity(VoxelTree & tree, int x, int y, int z);

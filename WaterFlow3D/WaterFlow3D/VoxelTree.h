@@ -2,7 +2,7 @@
 #include <array>
 struct Vector3F {
 	float X = 0, Y = 0, Z = 0;//x y z
-	Vector3F(float x, float y, float z) : X(x), Y(y), Z(z) {};
+	Vector3F(float x = 0, float y = 0, float z = 0) : X(x), Y(y), Z(z) {};
 	Vector3F operator+(Vector3F vec) {
 		return Vector3F(X + vec.X, Y + vec.Y, Z + vec.Z);
 	}
@@ -10,7 +10,13 @@ struct Vector3F {
 		return Vector3F(X - vec.X, Y - vec.Y, Z - vec.Z);
 	}
 	Vector3F operator*(float v) {
-		return Vector3F(X + v, Y + v, Z + v);
+		return Vector3F(X * v, Y * v, Z * v);
+	}
+	Vector3F& operator=(const Vector3F & v) {
+		X = v.X;
+		Y = v.Y;
+		Z = v.Z;
+		return *this;
 	}
 	void Clamp(Vector3F min,Vector3F max) {
 		X = std::min(std::max(X, min.X), max.X);
