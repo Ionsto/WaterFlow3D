@@ -40,7 +40,7 @@ struct VoxelData {
 		Water,
 		Sand,
 		Boundary
-	} Type;
+	} Type = VoxelType::Air;
 	static constexpr float AirDensity = 0.1;
 	static constexpr float WaterDensity = 1;
 	static constexpr float SandDensity = 20;

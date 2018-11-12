@@ -5,7 +5,7 @@ class WaterEngineBinary
 private:
 	static constexpr float Gravity = 9.81;
 	static constexpr float DeltaTime = 0.5;
-	static constexpr float ForceThreshold = 10;
+	static constexpr float ForceThreshold = 1;
 public:
 	WaterEngineBinary();
 	~WaterEngineBinary();
