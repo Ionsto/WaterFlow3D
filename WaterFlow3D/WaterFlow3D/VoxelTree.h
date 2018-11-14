@@ -9,6 +9,9 @@ struct Vector3F {
 	Vector3F operator-(Vector3F vec) {
 		return Vector3F(X - vec.X, Y - vec.Y, Z - vec.Z);
 	}
+	Vector3F operator-(float v) {
+		return Vector3F(X - v, Y - v, Z - v);
+	}
 	void operator-=(Vector3F vec) {
 		X -= vec.X;
 		Y -= vec.Y;
@@ -18,6 +21,9 @@ struct Vector3F {
 		X += vec.X;
 		Y += vec.Y;
 		Z += vec.Z;
+	}
+	float Dot(Vector3F & vec) {
+		return X * vec.X + Y * vec.Y + Z * vec.Z;
 	}
 	Vector3F operator*(float v) {
 		return Vector3F(X * v, Y * v, Z * v);
@@ -35,11 +41,11 @@ struct Vector3F {
 	}
 };
 struct VoxelData {
-	enum class VoxelType {
-		Air,
-		Water,
-		Sand,
-		Boundary
+	enum VoxelType : char {
+		Air = 0,
+		Water = 1,
+		Sand = 2,
+		Boundary = 3
 	} Type = VoxelType::Air;
 	static constexpr float AirDensity = 0.1;
 	static constexpr float WaterDensity = 1;
@@ -51,16 +57,18 @@ struct VoxelData {
 };
 class VoxelTree
 {
-private:
-	int SwapBufferIndex = 0;
 public:
+	int SwapBufferIndex = 0;
 	static constexpr int Width = 50;
 	static constexpr int Height = 1;
-	std::array<std::array<VoxelData, (Width+2) * (Width + 2) * (Height + 2)>,2> RawData;
+	std::array<std::array<VoxelData, (Width+2) * (Width + 2) * (Height + 2)>,3> RawData;
 	VoxelTree();
 	~VoxelTree();
 	VoxelData & GetValue(int x, int y, int z) {
 		return RawData[SwapBufferIndex][(z + 1) + ((y + 1) * (Height + 2)) + ((x + 1) * (Height + 2) * (Width + 2))];
+	}
+	VoxelData & GetValue(int x, int y, int z,int index) {
+		return RawData[index][(z + 1) + ((y + 1) * (Height + 2)) + ((x + 1) * (Height + 2) * (Width + 2))];
 	}
 	VoxelData & GetValueNew(int x, int y, int z) {
 		return RawData[SwapBufferIndex^1][(z + 1) + ((y + 1) * (Height + 2)) + ((x + 1) * (Height + 2) * (Width + 2))];

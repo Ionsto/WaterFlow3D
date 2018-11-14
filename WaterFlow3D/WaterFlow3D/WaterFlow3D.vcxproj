@@ -118,6 +118,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -133,6 +137,7 @@
     <ClCompile Include="VoxelTree.cpp" />
     <ClCompile Include="WaterEngine.cpp" />
     <ClCompile Include="WaterEngineBinary.cpp" />
+    <ClCompile Include="WaterEngineEnergy.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +147,7 @@
     <ClInclude Include="VoxelTree.h" />
     <ClInclude Include="WaterEngine.h" />
     <ClInclude Include="WaterEngineBinary.h" />
+    <ClInclude Include="WaterEngineEnergy.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
