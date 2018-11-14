@@ -50,10 +50,10 @@ void TestWaterSim()
 	auto OutFile = std::ofstream("out.txt");
 	VoxelTree tree;
 	WaterEngineEnergy waterengine;
-	static constexpr int tmax = 500;
+	static constexpr int tmax = 50;
 	for (int t = 0; t < tmax; ++t)
 	{
-		tree.GetValue((int)tree.Width / 2, 0,0).Type = VoxelData::VoxelType::Water;
+		tree.GetValue((int)tree.Width / 2, 1,0).Type = VoxelData::VoxelType::Water;
 		waterengine.Update(tree);
 		PrintWaterSim(tree, OutFile);
 		std::cout << (float)t*100.0 / tmax << std::endl;

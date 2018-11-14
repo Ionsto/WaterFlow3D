@@ -29,8 +29,8 @@ private:
 	static constexpr float Gravity = 9.81;
 	static constexpr float DeltaTime = 0.5;
 	static constexpr float ForceThreshold = 1;
-    static constexpr float DensityLookup[] = {0.1,1,10,-1};
-    static constexpr float SurfaceEnergyLookup[] = {0.1,1,10,-1};
+    static constexpr float DensityLookup[] = {0.1,4,10,-1};
+    static constexpr float SurfaceEnergyLookup[] = {0.1,1,1,-1};
 public:
 	WaterEngineEnergy();
 	~WaterEngineEnergy();

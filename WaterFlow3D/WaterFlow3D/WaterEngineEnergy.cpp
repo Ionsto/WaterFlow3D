@@ -105,7 +105,7 @@ void WaterEngineEnergy::Update(VoxelTree & tree)
 	//CopyTree(tree, StartState, RandomIndex);
 	for (int i = 0; i < 10;++i) {
 		CopyTree(tree, StartState, RandomIndex);
-		for (int k = 0; k < 10; ++k) {
+		for (int k = 0; k < 1000; ++k) {
 			Randomise(tree,RandomIndex);
 			float energy = CaclulateEnergy(tree,RandomIndex);
 			if (energy >= BestEnergy)
