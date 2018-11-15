@@ -51,6 +51,9 @@
     <ClCompile Include="WaterEngineBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WaterEngineEnergy.cpp">
+      <Filter>Source Files\GamePlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h">
@@ -73,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="WaterEngineBinary.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterEngineEnergy.h">
+      <Filter>Header Files\GamePlay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
