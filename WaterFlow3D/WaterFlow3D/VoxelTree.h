@@ -41,22 +41,28 @@ struct VoxelData {
 		Sand,
 		Boundary
 	} Type = VoxelType::Air;
-	static constexpr float AirDensity = 0.1;
-	static constexpr float WaterDensity = 1;
-	static constexpr float SandDensity = 20;
-	float Density = 0;
-	float Pressure = 0;
 	Vector3F Velocity;
-	Vector3F Force;
 };
+struct QuadTreeNode{
+	enum class VoxelType {
+		Air,
+		Water,
+		Sand,
+		Discontinous
+	} Contents;
+	short Depth;
+	int x,y,z;
+}
 class VoxelTree
 {
 private:
 	int SwapBufferIndex = 0;
 public:
+	static constexpr int Depth = 50;
 	static constexpr int Width = 50;
 	static constexpr int Height = 1;
 	std::array<std::array<VoxelData, (Width+2) * (Width + 2) * (Height + 2)>,2> RawData;
+	std::array<std::array<QuadTreeNode,0>,0> QuadTree;
 	VoxelTree();
 	~VoxelTree();
 	VoxelData & GetValue(int x, int y, int z) {

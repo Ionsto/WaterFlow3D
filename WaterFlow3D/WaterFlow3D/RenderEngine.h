@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 struct RenderData {
 	char R, G, B;
+	float Depth;
 };
 class RenderEngine
 {
@@ -15,5 +16,7 @@ public:
 	RenderEngine();
 	virtual ~RenderEngine();
 	void Render(World & world);
+	void RenderVoxelTree(VoxelTree & tree);
+	void RenderVoxel(VoxelTree & tree);
 };
 
