@@ -23,8 +23,32 @@ float WaterEngineEnergy::GetSurfaceSum(VoxelTree & tree, int x, int y, int z, in
 		GetSurfaceEnergy(tree, x, y, z + 1, index) +
 		GetSurfaceEnergy(tree, x, y, z - 1, index)) / 6);
 }
+float WaterEngineEnergy::CaclulateEntropy(VoxelTree & tree, int index,float Energy)
+{
+	float TotalEntropy = 0;
+    float MeanEntropy = Energy/(tree.Width * tree.Width * tree.Height);
+    for(int x = 0;x < tree.Width;++x)    
+    {
+        for(int y = 0;y < tree.Width;++y)    
+        {
+            for(int z = 0;z < tree.Height;++z)
+            {
+				auto & vox = tree.GetValue(x,y,z,index);
+				float LocalEnergy = 0;
+				float Density = DensityLookup[vox.Type];
+				float SurfaceEnergy = GetSurfaceSum(tree,x+1,y,z, index);
+				LocalEnergy += SurfaceEnergy;
+				LocalEnergy += 0.5 * DensityLookup[vox.Type] * vox.Velocity.Dot(vox.Velocity);
+				LocalEnergy += Density * Gravity * (tree.Width - y); 
+				TotalEntropy += std::abs(LocalEnergy - MeanEntropy);
+            }
+        }
+    }
+	return TotalEntropy/(tree.Width * tree.Width * tree.Height);
+}
 float WaterEngineEnergy::CaclulateEnergy(VoxelTree & tree, int index)
 {
+	float TotalEntropy = 0;
     float TotalEnergy = 0;
     for(int x = 0;x < tree.Width;++x)    
     {
@@ -102,15 +126,18 @@ void WaterEngineEnergy::Update(VoxelTree & tree)
 	int BestIndex = StartState ^ 1;
 	int RandomIndex = 2;
 	float BestEnergy = CaclulateEnergy(tree, StartState);
+	float BestEntropy = CaclulateEntropy(tree,StartState,BestEnergy);
 	//CopyTree(tree, StartState, RandomIndex);
 	for (int i = 0; i < 10;++i) {
 		CopyTree(tree, StartState, RandomIndex);
 		for (int k = 0; k < 1000; ++k) {
 			Randomise(tree,RandomIndex);
 			float energy = CaclulateEnergy(tree,RandomIndex);
-			if (energy >= BestEnergy)
+			float entropy = CaclulateEntropy(tree,StartState,BestEnergy);
+			if (energy >= BestEnergy && entropy >= BestEntropy)
 			{
 				BestEnergy = energy;
+				BestEntropy = entropy;
 				CopyTree(tree, RandomIndex, BestIndex);
 			}
 		}
