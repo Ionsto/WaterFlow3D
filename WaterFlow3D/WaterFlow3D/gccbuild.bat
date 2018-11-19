@@ -1,0 +1,1 @@
+"C:\AppJ\Dev-CPP\bin\c++.exe" *.cpp -o ./Output/out.exe
