@@ -58,7 +58,7 @@ struct QuadTreeNode{
 	} Contents;
 	short Depth;
 	int x,y,z;
-}
+};
 class VoxelTree
 {
 public:

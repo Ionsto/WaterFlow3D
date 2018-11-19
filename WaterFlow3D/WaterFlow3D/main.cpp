@@ -5,8 +5,10 @@
 #include "WaterEngineEnergy.h"
 #include <iostream>
 #include <fstream>
+#ifdef __WIN32__
 #include <windows.h>
-#include <stdio.h>  
+#endif
+#include <stdio.h> 
 #include <stdlib.h>  
 
 void PrintWaterSim(VoxelTree & tree,std::ofstream & out) {
@@ -22,6 +24,7 @@ void PrintWaterSim(VoxelTree & tree,std::ofstream & out) {
 	}
 	out << "---" << std::endl;
 }
+#ifdef __WIN32__
 void OpenPlotter() {
 	char   psBuffer[128];
 	FILE   *pPipe;
@@ -44,6 +47,7 @@ void OpenPlotter() {
 		printf("Error: Failed to read the pipe to the end.\n");
 	}
 }
+#endif
 void TestWaterSim()
 {
 	std::cout << "Starting water sim" << std::endl;
@@ -59,7 +63,9 @@ void TestWaterSim()
 		std::cout << (float)t*100.0 / tmax << std::endl;
 	}
 	std::cout << "Finished" << std::endl;
+#ifdef __WIN32__
 	OpenPlotter();
+#endif
 	char input;
 	std::cin >> input;
 }

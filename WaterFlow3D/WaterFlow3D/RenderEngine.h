@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 #include "World.h"
-#include <Eigen/Dense>
+//#include <Eigen/Dense>
 struct RenderData {
 	char R, G, B;
 	float Depth;

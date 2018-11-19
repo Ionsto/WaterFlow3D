@@ -36,6 +36,7 @@ public:
 	~WaterEngineEnergy();
 	float GetSurfaceEnergy(VoxelTree & tree, int x, int y, int z, int index);
 	float GetSurfaceSum(VoxelTree & tree, int x, int y, int z, int index);
+	float CaclulateEntropy(VoxelTree & tree, int index,float Energy);
 	float CaclulateEnergy(VoxelTree & tree, int index);
 	void CopyTree(VoxelTree & tree, int source,int dest);
     void Randomise(VoxelTree & tree,int index);

@@ -1,0 +1,13 @@
+cflag = -std=c++0x
+rule g
+  command = g++ $cflag $in -o ./GOut/$out 
+build GameManager.o:g GameManager.cpp
+build RenderEngine.o:g RenderEngine.cpp
+build RenderSoftware.o:g RenderSoftware.cpp
+build Vector.o:g Vector.cpp
+build VoxelTree.o:g VoxelTree.cpp
+build WaterEngine.o:g WaterEngine.cpp
+build WaterEngineBinary.o:g WaterEngineBinary.cpp
+build WaterEngineEnergy.o:g WaterEngineEnergy.cpp
+build World.o:g World.cpp
+build main.o:g main.cpp

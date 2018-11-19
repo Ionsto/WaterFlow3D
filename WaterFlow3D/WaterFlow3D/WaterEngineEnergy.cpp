@@ -91,8 +91,8 @@ void WaterEngineEnergy::Randomise(VoxelTree & tree,int index)
 				if (vox.Type != voxswp.Type)
 				{
 					float DeltaSurfaceEnergy = GetSurfaceSum(tree, x, y, z, index) - GetSurfaceSum(tree, x + dx, y + dy, z + dz, index);
-					vox.Velocity += Vector3F(dx, dy, dz) * (1 - std::sqrtf(2 * DeltaSurfaceEnergy / DensityLookup[vox.Type]));
-					voxswp.Velocity -= Vector3F(dx, dy, dz) * (1 - std::sqrtf(2 * DeltaSurfaceEnergy / DensityLookup[voxswp.Type]));
+					vox.Velocity += Vector3F(dx, dy, dz) * (1 - std::sqrt(2 * DeltaSurfaceEnergy / DensityLookup[vox.Type]));
+					voxswp.Velocity -= Vector3F(dx, dy, dz) * (1 - std::sqrt(2 * DeltaSurfaceEnergy / DensityLookup[voxswp.Type]));
 				}
 				else {
 
