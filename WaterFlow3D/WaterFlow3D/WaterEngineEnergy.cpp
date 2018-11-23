@@ -67,6 +67,20 @@ float WaterEngineEnergy::CaclulateEnergy(VoxelTree & tree, int index)
     }
 	return TotalEnergy;
 }
+void WaterEngineEnergy::DisperseVelocity(VoxelTree & tree,int index)
+{
+    for(int x = 0;x < tree.Width;++x)    
+    {
+        for(int y = 0;y < tree.Width;++y)    
+        {
+            for(int z = 0;z < tree.Height;++z) 
+            {
+                auto & vox = tree.GetValue(x,y,z, index);
+	    }
+	}
+    }
+	
+}
 void WaterEngineEnergy::Randomise(VoxelTree & tree,int index)
 {
     for(int x = 0;x < tree.Width;++x)    

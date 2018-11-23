@@ -40,5 +40,6 @@ public:
 	float CaclulateEnergy(VoxelTree & tree, int index);
 	void CopyTree(VoxelTree & tree, int source,int dest);
     void Randomise(VoxelTree & tree,int index);
+    void DisperseVelocity(VoxelTree & tree,int index);
     void Update(VoxelTree & tree);
 };
