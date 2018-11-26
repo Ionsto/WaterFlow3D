@@ -91,6 +91,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>sfml-system-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -122,6 +127,9 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
       <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -135,8 +143,6 @@
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RenderSoftware.cpp" />
     <ClCompile Include="VoxelTree.cpp" />
-    <ClCompile Include="WaterEngine.cpp" />
-    <ClCompile Include="WaterEngineBinary.cpp" />
     <ClCompile Include="WaterEngineEnergy.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -145,8 +151,6 @@
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RenderSoftware.h" />
     <ClInclude Include="VoxelTree.h" />
-    <ClInclude Include="WaterEngine.h" />
-    <ClInclude Include="WaterEngineBinary.h" />
     <ClInclude Include="WaterEngineEnergy.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

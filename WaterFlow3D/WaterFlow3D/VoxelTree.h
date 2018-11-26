@@ -48,6 +48,7 @@ struct VoxelData {
 		Boundary = 3
 	} Type = VoxelType::Air;
 	Vector3F Velocity;
+	Vector3F PrevVelocity;
 };
 struct QuadTreeNode{
 	enum class VoxelType {
@@ -63,9 +64,10 @@ class VoxelTree
 {
 public:
 	int SwapBufferIndex = 0;
-	static constexpr int Width = 50;
+	static constexpr int Width = 20;
 	static constexpr int Height = 1;
-	std::array<std::array<VoxelData, (Width+2) * (Width + 2) * (Height + 2)>,3> RawData;
+	static constexpr int BufferDepth = 3;
+	std::array<std::array<VoxelData, (Width+2) * (Width + 2) * (Height + 2)>, BufferDepth> RawData;
 	VoxelTree();
 	~VoxelTree();
 	VoxelData & GetValue(int x, int y, int z) {
