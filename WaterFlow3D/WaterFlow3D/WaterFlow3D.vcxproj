@@ -140,18 +140,22 @@
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ParticleTree.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RenderSoftware.cpp" />
     <ClCompile Include="VoxelTree.cpp" />
     <ClCompile Include="WaterEngineEnergy.cpp" />
+    <ClCompile Include="WaterEngineParticle.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
+    <ClInclude Include="ParticleTree.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RenderSoftware.h" />
     <ClInclude Include="VoxelTree.h" />
     <ClInclude Include="WaterEngineEnergy.h" />
+    <ClInclude Include="WaterEngineParticle.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>

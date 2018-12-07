@@ -25,6 +25,15 @@
     <Filter Include="Header Files\Render">
       <UniqueIdentifier>{c74e04ae-6d93-449f-a390-6c925cc87a40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GamePlay\Euler">
+      <UniqueIdentifier>{760f3433-47ee-42c3-b7d1-7d4892663929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GamePlay\Particle">
+      <UniqueIdentifier>{d7382a0a-18d9-4346-8e83-73de48a7957d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GamePlay\Particle">
+      <UniqueIdentifier>{13cf1049-a786-42c4-be19-61a2df4f9096}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,12 +57,15 @@
     <ClCompile Include="RenderEngine.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
+    <ClCompile Include="WaterEngineParticle.cpp">
+      <Filter>Source Files\GamePlay\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleTree.cpp">
+      <Filter>Source Files\GamePlay\Particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h">
-      <Filter>Header Files\GamePlay</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelTree.h">
       <Filter>Header Files\GamePlay</Filter>
     </ClInclude>
     <ClInclude Include="World.h">
@@ -65,8 +77,17 @@
     <ClInclude Include="RenderSoftware.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelTree.h">
+      <Filter>Header Files\GamePlay\Euler</Filter>
+    </ClInclude>
     <ClInclude Include="WaterEngineEnergy.h">
-      <Filter>Header Files\GamePlay</Filter>
+      <Filter>Header Files\GamePlay\Euler</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterEngineParticle.h">
+      <Filter>Header Files\GamePlay\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleTree.h">
+      <Filter>Header Files\GamePlay\Particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

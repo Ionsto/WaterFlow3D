@@ -20,7 +20,8 @@ private:
 	};
 	int generate_offset()
 	{
-		return offset_distribution(engine);
+		return (xorshf96() % 3) - 1;
+		//return offset_distribution(engine);
 	};
 	bool generate_binary()
 	{

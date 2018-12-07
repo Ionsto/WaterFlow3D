@@ -4,6 +4,14 @@ WaterEngineEnergy::WaterEngineEnergy()
 {
 	engine = std::mt19937(rd());
 	offset_distribution = std::uniform_int_distribution<int>(-1, 1);
+	int count[] = { 0,0,0 };
+	for (int i = 0; i < 1000; ++i) {
+		int val = generate_offset();
+		++count[val + 1];
+	}
+	/*std::cout << "-1 : " << count[0] << "\n";
+	std::cout << "0 : " << count[1] << "\n";
+	std::cout << "1 : " << count[2] << "\n";*/
 }
 WaterEngineEnergy::~WaterEngineEnergy()
 {
@@ -78,13 +86,12 @@ void WaterEngineEnergy::DisperseVelocity(VoxelTree & tree,int index)
     {
         for(int y = 0;y < tree.Width;++y)    
         {
-            for(int z = 0;z < tree.Height;++z) 
-            {
-                auto & vox = tree.GetValue(x,y,z, index);
+			for (int z = 0; z < tree.Height; ++z)
+			{
+				auto & vox = tree.GetValue(x, y, z, index);
+			}
 	    }
 	}
-    }
-	
 }
 void WaterEngineEnergy::Randomise(VoxelTree & tree,int index)
 {
@@ -166,9 +173,9 @@ void WaterEngineEnergy::Update(VoxelTree & tree)
 	float BestEntropy = CaclulateEntropy(tree,StartState,BestEnergy);
 	SwapVelocityBuffer(tree);
 	//CopyTree(tree, StartState, RandomIndex);
-	for (int i = 0; i < 10000;++i) {
+	for (int i = 0; i < 100;++i) {
 		CopyTree(tree, StartState, RandomIndex);
-		for (int k = 0; k < 1; ++k) {
+		for (int k = 0; k < 1000; ++k) {
 			Randomise(tree,RandomIndex);
 			float energy = CaclulateEnergy(tree,RandomIndex);
 			float entropy = CaclulateEntropy(tree,StartState,BestEnergy);//Actually inverse entropy

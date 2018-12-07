@@ -26,28 +26,28 @@ void PrintWaterSim(VoxelTree & tree,WaterEngineEnergy & waterengine,std::ofstrea
 	out << "---" << std::endl;
 }
 void OpenPlotter() {
-	if constexpr (_WIN32) {
-		char   psBuffer[128];
-		FILE   *pPipe;
+	//if constexpr (_WIN32) {
+	//	char   psBuffer[128];
+	//	FILE   *pPipe;
 
-		if ((pPipe = _popen("python plot.py", "rt")) == NULL)
-			exit(1);
+	//	if ((pPipe = _popen("python plot.py", "rt")) == NULL)
+	//		exit(1);
 
-		while (fgets(psBuffer, 128, pPipe))
-		{
-			printf(psBuffer);
-		}
+	//	while (fgets(psBuffer, 128, pPipe))
+	//	{
+	//		printf(psBuffer);
+	//	}
 
-		/* Close pipe and print return value of pPipe. */
-		if (feof(pPipe))
-		{
-			printf("\nProcess returned %d\n", _pclose(pPipe));
-		}
-		else
-		{
-			printf("Error: Failed to read the pipe to the end.\n");
-		}
-	}
+	//	/* Close pipe and print return value of pPipe. */
+	//	if (feof(pPipe))
+	//	{
+	//		printf("\nProcess returned %d\n", _pclose(pPipe));
+	//	}
+	//	else
+	//	{
+	//		printf("Error: Failed to read the pipe to the end.\n");
+	//	}
+	//}
 }
 void TestWaterSim()
 {
