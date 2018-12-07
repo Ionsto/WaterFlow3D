@@ -17,6 +17,6 @@ public:
 	virtual ~RenderEngine();
 	void Render(World & world);
 	void RenderVoxelTree(VoxelTree & tree);
-	void RenderVoxel(VoxelTree & tree);
+	void RenderVoxel(VoxelTree & tree,int x,int y,int z);
 };
 

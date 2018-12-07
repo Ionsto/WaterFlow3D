@@ -16,7 +16,7 @@ void RenderEngine::Render(World & world)
     
 }
 
-void RenderEngine::RenderVoxelTree(World & world)
+void RenderEngine::RenderVoxelTree(VoxelTree & tree)
 {
 
 }
