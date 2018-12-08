@@ -1,8 +1,8 @@
 cflag = -std=c++0x
 rule g
-  command = g++ $cflag -c $in -o ./GOut/$out 
+  command = g++ $cflag -c $in -o $out 
 rule link
-  command = g++ $cflag -L ./Gout/ $in -o $out 
-build Solver.o:g Solver.cpp
-build main.o:g main.cpp
-build out:link 
+  command = g++ $cflag $in -o $out 
+build ./GOut/Solver.o:g Solver.cpp
+build ./GOut/main.o:g main.cpp
+build Sim.out:link ./GOut/main.o ./GOut/Solver.o 
