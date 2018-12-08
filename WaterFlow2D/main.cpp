@@ -13,5 +13,6 @@ int main(int argc, char** args)
 	{
 		Update(solver);
 	}
+	std::cout<<"Ended"<<std::endl;
 	return 0;
 }
