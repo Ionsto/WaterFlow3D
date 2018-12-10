@@ -10,6 +10,7 @@ private:
 	void UpdateConditions();
 	void UpdatePressure();
 	void Intergrate();
+	float SmoothingKernal(float Radius,float SmoothingParam);
 public:
 	Solver() = default;
 	~Solver() = default;
