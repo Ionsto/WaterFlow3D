@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 struct Vector {
 	float X = 0, Y = 0;//x y z
 	Vector(float x = 0, float y = 0) : X(x), Y(y){};
@@ -21,6 +22,10 @@ struct Vector {
 	}
 	float Dot(Vector & vec) {
 		return X * vec.X + Y * vec.Y;
+	}
+	float Magnitude()
+	{
+		return std::sqrt(Dot(*this));
 	}
 	Vector operator/(float v) {
 		return Vector(X / v, Y / v);
