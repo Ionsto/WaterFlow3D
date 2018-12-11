@@ -3,12 +3,13 @@
 class Solver{
 public:
 	static const constexpr int MaxParticles = 1000;
-	static const constexpr int DeltaTime = 1;
-	static const constexpr float SmoothingParam = 1;
+	static const constexpr float DeltaTime = 0.1;
+	static const constexpr float SmoothingParam = 4;
 	static const constexpr float GasConstant = 1;
 	static const constexpr float Density0 = 1;
-	static const constexpr float Gravity = 1;
-	int ParticleCount;
+	static const constexpr float Gravity = 9.81;
+	static const constexpr float Restitution = 0.5;
+	int ParticleCount = 0;
 private:
 	std::array<Particle,MaxParticles> ParticleSwapList;
 	void UpdateConditions();
@@ -21,7 +22,7 @@ public:
 	Solver() = default;
 	~Solver() = default;
 	void Update();
-	void Print();
+	void Print(int t);
 	Particle & GetParticle(int i)
 	{
 		return ParticleSwapList[i];

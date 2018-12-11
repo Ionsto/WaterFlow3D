@@ -6,15 +6,14 @@ void Update(Solver & solver)
 }
 int main(int argc, char** args)
 {
-	constexpr const int RunTime = 1000;
+	constexpr const int RunTime = 200;
 	Solver solver;
-	solver.AddParticle(Vector(0,0));
-	std::cout<<"Starting"<<std::endl;
+	solver.AddParticle(Vector(20,40));
 	for(int t = 0;t < RunTime;++t)
 	{
+		solver.AddParticle(Vector(20+(rand()%2),40));
 		Update(solver);
-		solver.Print();
+		solver.Print(t);
 	}
-	std::cout<<"Ended"<<std::endl;
 	return 0;
 }

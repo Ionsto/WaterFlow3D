@@ -1,4 +1,4 @@
-cflag = -std=c++0x
+cflag = -std=c++0x 
 rule g
   command = g++ $cflag -c $in -o $out 
 rule link

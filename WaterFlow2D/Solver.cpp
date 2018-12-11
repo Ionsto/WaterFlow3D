@@ -4,6 +4,7 @@ void Solver::Update()
 {
 	UpdateConditions();
 	UpdatePressure();
+	UpdateForces();
 	Intergrate();
 }
 
@@ -69,19 +70,22 @@ void Solver::UpdateForces()
 			auto & ParticleJ = GetParticle(j); 
 			Vector difference = ParticleI.Position - ParticleJ.Position;
 			float distance = difference.Magnitude();
-			float PressureForce = ((ParticleI.Pressure + ParticleJ.Pressure)/distance) * SmoothingKernalGradient(distance);
-			ParticleI.Force -= difference * (PressureForce * ParticleJ.Mass /(2*ParticleJ.Pressure));  
-			ParticleJ.Force += difference * (PressureForce * ParticleI.Mass /(2*ParticleI.Pressure));  
+			if(distance != 0)
+			{
+				float PressureForce = ((ParticleI.Pressure + ParticleJ.Pressure)/distance) * SmoothingKernalGradient(distance);
+				ParticleI.Force += difference * (PressureForce * ParticleJ.Mass /(2*ParticleJ.Pressure));  
+				ParticleJ.Force -= difference * (PressureForce * ParticleI.Mass /(2*ParticleI.Pressure));  
+			}
 		}
-		ParticleI.Force.Y += ParticleI.Mass * Gravity;
+		ParticleI.Force.Y -= ParticleI.Mass * Gravity;
 	}
 }
-void Solver::Print()
+void Solver::Print(int t)
 {
 	for(int i = 0;i < ParticleCount;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
-		std::cout<<ParticleI.Position.X << "," <<ParticleI.Position.Y<<std::endl;
+		std::cout<<t<<","<<ParticleI.Position.X << "," <<ParticleI.Position.Y<<std::endl;
 	}
 
 }
@@ -93,10 +97,30 @@ void Solver::UpdateConditions()
 		auto & Particle = GetParticle(i); 
 		if(Particle.Position.X < 0)
 		{
+			Particle.PositionOld.X -= Particle.Position.X;
+			Particle.Position.X = 0;
+			Particle.PositionOld.X += Restitution * (Particle.Position.X - Particle.PositionOld.X); 
 			std::swap(Particle.Position.X,Particle.PositionOld.X);
 		}
 		if(Particle.Position.Y < 0)
 		{
+			Particle.PositionOld.Y -= Particle.Position.Y;
+			Particle.Position.Y = 0;
+			Particle.PositionOld.Y += Restitution * (Particle.Position.Y - Particle.PositionOld.Y); 
+			std::swap(Particle.Position.Y,Particle.PositionOld.Y);
+		}
+		if(Particle.Position.X > 50)
+		{
+			Particle.PositionOld.X -= Particle.Position.X;
+			Particle.Position.X = 50;
+			Particle.PositionOld.X -= Restitution * (Particle.Position.X - Particle.PositionOld.X); 
+			std::swap(Particle.Position.X,Particle.PositionOld.X);
+		}
+		if(Particle.Position.Y > 50)
+		{
+			Particle.PositionOld.Y -= Particle.Position.Y;
+			Particle.Position.Y = 50;
+			Particle.PositionOld.Y -= Restitution * (Particle.Position.Y - Particle.PositionOld.Y); 
 			std::swap(Particle.Position.Y,Particle.PositionOld.Y);
 		}
 	}
@@ -107,14 +131,20 @@ void Solver::Intergrate()
 	for(int i = 0;i < ParticleCount;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
-		Vector Acceleration = (ParticleI.Force / ParticleI.Mass) * Solver::DeltaTime;
+		Vector Acceleration = (ParticleI.Force / ParticleI.Mass) * Solver::DeltaTime* Solver::DeltaTime;;
+		Vector old = ParticleI.Position;
 		ParticleI.Position = (ParticleI.Position * 2) - ParticleI.PositionOld + Acceleration;
+		ParticleI.PositionOld = old;
+		ParticleI.Force = Vector();
 	}
 }
 void Solver::AddParticle(Vector vec)
 {
-	ParticleSwapList[ParticleCount] = Particle();
-	ParticleSwapList[ParticleCount].Position = vec;
-	ParticleSwapList[ParticleCount].PositionOld = vec;
-	ParticleCount++;
+	if(ParticleCount < MaxParticles)
+	{
+		ParticleSwapList[ParticleCount] = Particle();
+		ParticleSwapList[ParticleCount].Position = vec;
+		ParticleSwapList[ParticleCount].PositionOld = vec;
+		ParticleCount++;
+	}
 }
