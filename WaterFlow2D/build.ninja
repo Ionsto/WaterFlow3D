@@ -1,6 +1,7 @@
-cflag = -std=c++0x 
+cflag = -std=c++0x -O3
 rule g
-  command = g++ $cflag -c $in -o $out 
+  depfile = $out.d
+  command = g++ -MMD -MF $out.d $cflag -c $in -o $out 
 rule link
   command = g++ $cflag $in -o $out 
 build ./GOut/Solver.o:g Solver.cpp

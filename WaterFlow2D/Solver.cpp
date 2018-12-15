@@ -1,11 +1,26 @@
 #include "Solver.h"
 #include <iostream>
+Solver::Solver()
+{
+}
 void Solver::Update()
 {
 	UpdateConditions();
 	UpdatePressure();
 	UpdateForces();
 	Intergrate();
+}
+float Solver::Poly6(float r)
+{
+	return 315.f * std::pow(SmoothingParam * SmoothingParam - r * r, 3.0) / (64.f * 3.14 * pow(SmoothingParam, 9.0f));
+}
+float Solver::SpikyGrad(float r)
+{
+	return  -45.f / (3.14 * std::pow(SmoothingParam, 6.0)) * std::pow(SmoothingParam - r, 2.0);
+}
+float Solver::LaplaceVisc(float r)
+{
+	return 45.f / (3.14 * pow(SmoothingParam, 6.0)) * (SmoothingParam - r);
 }
 
 void Solver::UpdatePressure()
@@ -17,13 +32,18 @@ void Solver::UpdatePressure()
 		for(int j = 0;j < ParticleCount;++j)
 		{
 			auto & ParticleJ = GetParticle(j); 
-			if(i != j)
+			//if(i != j)
 			{
 				Vector difference = ParticleI.Position - ParticleJ.Position;
-				ParticleI.Density += ParticleJ.Mass * SmoothingKernal(difference.Magnitude()); 
+				float Distance = difference.Magnitude();
+				if(Distance < SmoothingParam)
+				{
+					ParticleI.Density += ParticleJ.Mass * Poly6(Distance); 
+				}
 			}
 		}
-		ParticleI.Pressure = (ParticleI.Density - Density0) * GasConstant;
+		//ParticleI.Pressure = std::max(0.0f,(ParticleI.Density - Density0) * GasConstant);
+		ParticleI.Pressure = ((ParticleI.Density - Density0) * GasConstant);
 	}
 }
 float Solver::SmoothingKernal(float Radius)
@@ -62,7 +82,7 @@ float Solver::SmoothingKernalGradient(float Radius)
 }
 void Solver::UpdateForces()
 {
-	for(int i = 0;i < ParticleCount;++i)
+	for(int i = 0;i < ParticleCount-1;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
 		for(int j = i+1;j < ParticleCount;++j)
@@ -70,11 +90,15 @@ void Solver::UpdateForces()
 			auto & ParticleJ = GetParticle(j); 
 			Vector difference = ParticleI.Position - ParticleJ.Position;
 			float distance = difference.Magnitude();
-			if(distance != 0)
+			if(distance != 0 && distance < SmoothingParam && ParticleJ.Density != 0 && ParticleI.Density != 0)
 			{
-				float PressureForce = ((ParticleI.Pressure + ParticleJ.Pressure)/distance) * SmoothingKernalGradient(distance);
-				ParticleI.Force += difference * (PressureForce * ParticleJ.Mass /(2*ParticleJ.Pressure));  
-				ParticleJ.Force -= difference * (PressureForce * ParticleI.Mass /(2*ParticleI.Pressure));  
+				float PressureForce = ((ParticleI.Pressure + ParticleJ.Pressure)) * SpikyGrad(distance);
+				difference = difference / distance;
+				ParticleI.Force -= difference * (PressureForce * ParticleJ.Mass /(2.0*ParticleJ.Density));  
+				ParticleJ.Force += difference * (PressureForce * ParticleI.Mass /(2.0*ParticleI.Density));  
+				Vector Visc = ((ParticleJ.Position - ParticleJ.PositionOld) - (ParticleI.Position - ParticleI.PositionOld)) * LaplaceVisc(distance) * Viscosity;
+				ParticleI.Force += Visc /ParticleI.Mass * ParticleJ.Density;
+				ParticleJ.Force -= Visc / ParticleJ.Mass * ParticleI.Density;
 			}
 		}
 		ParticleI.Force.Y -= ParticleI.Mass * Gravity;
@@ -85,7 +109,7 @@ void Solver::Print(int t)
 	for(int i = 0;i < ParticleCount;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
-		std::cout<<t<<","<<ParticleI.Position.X << "," <<ParticleI.Position.Y<<std::endl;
+		std::cout<<t<<","<<ParticleI.Position.X << "," <<ParticleI.Position.Y<<","<<ParticleI.Pressure/GasConstant<<std::endl;
 	}
 
 }
@@ -113,14 +137,14 @@ void Solver::UpdateConditions()
 		{
 			Particle.PositionOld.X -= Particle.Position.X;
 			Particle.Position.X = 50;
-			Particle.PositionOld.X -= Restitution * (Particle.Position.X - Particle.PositionOld.X); 
+			Particle.PositionOld.X = Particle.Position.X + (Particle.PositionOld.X * Restitution); 
 			std::swap(Particle.Position.X,Particle.PositionOld.X);
 		}
 		if(Particle.Position.Y > 50)
 		{
 			Particle.PositionOld.Y -= Particle.Position.Y;
 			Particle.Position.Y = 50;
-			Particle.PositionOld.Y -= Restitution * (Particle.Position.Y - Particle.PositionOld.Y); 
+			Particle.PositionOld.Y = Particle.Position.Y + (Particle.PositionOld.Y * Restitution);
 			std::swap(Particle.Position.Y,Particle.PositionOld.Y);
 		}
 	}
@@ -145,6 +169,7 @@ void Solver::AddParticle(Vector vec)
 		ParticleSwapList[ParticleCount] = Particle();
 		ParticleSwapList[ParticleCount].Position = vec;
 		ParticleSwapList[ParticleCount].PositionOld = vec;
+		ParticleSwapList[ParticleCount].PositionOld.Y += 0.1;
 		ParticleCount++;
 	}
 }
