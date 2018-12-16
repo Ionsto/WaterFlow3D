@@ -23,6 +23,7 @@ public:
 	bool InBounds(int x, int y, int z) {
 		return x >= 0 && x < Width && y >= 0 && y < Width &&  z >= 0 && z < Height;
 	}
+	decltype(RawData) GetNode(int x, int y, int z);
 	std::array<std::tuple <decltype(RawData)::iterator, decltype(RawData)::iterator>,6> GetNeigbours(int x,int y);
 };
 
