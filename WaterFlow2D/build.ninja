@@ -1,4 +1,4 @@
-cflag = -std=c++0x -O3
+cflag = -std=c++0x -O3 --fast-math
 rule g
   depfile = $out.d
   command = g++ -MMD -MF $out.d $cflag -c $in -o $out 

@@ -1,6 +1,6 @@
 #include "Vector.h"
 struct Particle{
-	float Mass = 1;
+	static const constexpr float Mass = 10;
 	float Density = 0;
 	float Pressure;
 	Vector Force;
