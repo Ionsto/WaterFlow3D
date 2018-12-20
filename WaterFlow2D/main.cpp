@@ -7,7 +7,7 @@ void Update(Solver & solver)
 }
 int main(int argc, char** args)
 {
-	constexpr const int RunTime = 600;
+	constexpr const int RunTime = 1000;
 	Solver solver;
 	solver.AddParticle(Vector(20,40));
 	//auto start = std::chrono::high_resolution_clock::now();

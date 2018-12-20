@@ -32,7 +32,7 @@ void Solver::UpdatePressure()
 		for(int j = 0;j < ParticleCount;++j)
 		{
 			auto & ParticleJ = GetParticle(j); 
-			//if(i != j)
+			if(i != j)
 			{
 				Vector difference = ParticleI.Position - ParticleJ.Position;
 				float Distance = difference.Magnitude();
