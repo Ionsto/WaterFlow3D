@@ -143,8 +143,8 @@
     <ClCompile Include="ParticleTree.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RenderSoftware.cpp" />
+    <ClCompile Include="Vector.cpp" />
     <ClCompile Include="VoxelTree.cpp" />
-    <ClCompile Include="WaterEngineEnergy.cpp" />
     <ClCompile Include="WaterEngineParticle.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -153,6 +153,7 @@
     <ClInclude Include="ParticleTree.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RenderSoftware.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="WaterEngineParticle.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

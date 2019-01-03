@@ -48,9 +48,6 @@
     <ClCompile Include="VoxelTree.cpp">
       <Filter>Source Files\GamePlay</Filter>
     </ClCompile>
-    <ClCompile Include="WaterEngineEnergy.cpp">
-      <Filter>Source Files\GamePlay</Filter>
-    </ClCompile>
     <ClCompile Include="RenderEngine.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
@@ -58,6 +55,9 @@
       <Filter>Source Files\GamePlay\Particle</Filter>
     </ClCompile>
     <ClCompile Include="ParticleTree.cpp">
+      <Filter>Source Files\GamePlay\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector.cpp">
       <Filter>Source Files\GamePlay\Particle</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,6 +78,9 @@
       <Filter>Header Files\GamePlay\Particle</Filter>
     </ClInclude>
     <ClInclude Include="ParticleTree.h">
+      <Filter>Header Files\GamePlay\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
       <Filter>Header Files\GamePlay\Particle</Filter>
     </ClInclude>
   </ItemGroup>
