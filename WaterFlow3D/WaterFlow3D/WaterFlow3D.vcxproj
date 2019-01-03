@@ -153,8 +153,6 @@
     <ClInclude Include="ParticleTree.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RenderSoftware.h" />
-    <ClInclude Include="VoxelTree.h" />
-    <ClInclude Include="WaterEngineEnergy.h" />
     <ClInclude Include="WaterEngineParticle.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

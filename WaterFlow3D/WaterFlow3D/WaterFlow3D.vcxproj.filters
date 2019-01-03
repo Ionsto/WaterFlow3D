@@ -25,9 +25,6 @@
     <Filter Include="Header Files\Render">
       <UniqueIdentifier>{c74e04ae-6d93-449f-a390-6c925cc87a40}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\GamePlay\Euler">
-      <UniqueIdentifier>{760f3433-47ee-42c3-b7d1-7d4892663929}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\GamePlay\Particle">
       <UniqueIdentifier>{d7382a0a-18d9-4346-8e83-73de48a7957d}</UniqueIdentifier>
     </Filter>
@@ -76,12 +73,6 @@
     </ClInclude>
     <ClInclude Include="RenderSoftware.h">
       <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelTree.h">
-      <Filter>Header Files\GamePlay\Euler</Filter>
-    </ClInclude>
-    <ClInclude Include="WaterEngineEnergy.h">
-      <Filter>Header Files\GamePlay\Euler</Filter>
     </ClInclude>
     <ClInclude Include="WaterEngineParticle.h">
       <Filter>Header Files\GamePlay\Particle</Filter>
