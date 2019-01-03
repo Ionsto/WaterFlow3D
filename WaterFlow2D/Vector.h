@@ -1,5 +1,5 @@
 #pragma once
-#include <math.h>
+#include <cmath>
 struct Vector {
 	float X = 0, Y = 0;//x y z
 	Vector(float x = 0, float y = 0) : X(x), Y(y){};
@@ -21,7 +21,7 @@ struct Vector {
 		Y += vec.Y;
 	}
 	float Dot(Vector & vec) {
-		return X * vec.X + Y * vec.Y;
+		return (X * vec.X) + (Y * vec.Y);
 	}
 	float Magnitude()
 	{
