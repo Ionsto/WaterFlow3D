@@ -10,7 +10,9 @@ plt.ylim(0,50)
 plt.xlim(0,50)
 mindp = np.min(d[:,3])
 maxdp = np.max(d[:,3])
-for i in range(maxt):
+mindp = -1
+maxdp = 1
+for i in range(0,maxt,10):
     mask = d[:,0] == i
     ims.append([plt.scatter(d[mask,1],d[mask,2],c=d[mask,3]),])
     plt.clim(mindp,maxdp)

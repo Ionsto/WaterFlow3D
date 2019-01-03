@@ -1,4 +1,9 @@
-cflag = -std=c++0x -O3 --fast-math
+cflag = -std=c++0x -O3 --fast-math -fopenmp
+rule g-win
+  depfile = $out.d
+  command = x86_64-w64-mingw32-g++.exe -MMD -MF $out.d $cflag -c $in -o $out 
+rule link-win
+  command = x86_64-w64-mingw32-g++.exe $cflag $in -o $out 
 rule g
   depfile = $out.d
   command = g++ -MMD -MF $out.d $cflag -c $in -o $out 

@@ -2,17 +2,31 @@
 #include <iostream>
 Solver::Solver()
 {
+	static const constexpr float Size = 50;
+	static const constexpr int Rank = 4;
+	static const constexpr float Mass = 10;
+	for(float x = 0; x <= Size; x += BoundaryDensity) 
+	{
+		for(int r = 0; r < Rank;r++)
+		{
+			AddParticle(Vector(x,-BoundaryDensity * r),Mass);
+			AddParticle(Vector(x,50 + (BoundaryDensity * r)),Mass);
+			AddParticle(Vector(-BoundaryDensity * r,x),Mass);
+			AddParticle(Vector(50 + (BoundaryDensity * r),x),Mass);
+		}
+		DummyParticles += Rank * 4;
+	}
 }
 void Solver::Update()
 {
-	UpdateConditions();
+	//UpdateConditions();
 	UpdatePressure();
 	UpdateForces();
 	Intergrate();
 }
 float Solver::Poly6(float r)
 {
-	return 315.f * std::pow(SmoothingParam * SmoothingParam - r * r, 3.0) / (64.f * 3.14 * pow(SmoothingParam, 9.0f));
+	return 315.f * std::pow((SmoothingParam * SmoothingParam) - (r * r), 3.0) / (64.f * 3.14 * pow(SmoothingParam, 9.0f));
 }
 float Solver::SpikyGrad(float r)
 {
@@ -25,6 +39,7 @@ float Solver::LaplaceVisc(float r)
 
 void Solver::UpdatePressure()
 {
+#pragma omp parallel for  
 	for(int i = 0;i < ParticleCount;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
@@ -104,12 +119,12 @@ void Solver::UpdateForces()
 		ParticleI.Force.Y -= ParticleI.Mass * Gravity;
 	}
 }
-void Solver::Print(int t)
+void Solver::Print(int t,std::ofstream & out)
 {
 	for(int i = 0;i < ParticleCount;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
-		std::cout<<t<<","<<ParticleI.Position.X << "," <<ParticleI.Position.Y<<","<<ParticleI.Pressure/GasConstant<<std::endl;
+		out<<t<<","<<ParticleI.Position.X << "," <<ParticleI.Position.Y<<","<<ParticleI.Density<<"\n";
 	}
 
 }
@@ -152,24 +167,25 @@ void Solver::UpdateConditions()
 
 void Solver::Intergrate()
 {
-	for(int i = 0;i < ParticleCount;++i)
+	for(int i = DummyParticles;i < ParticleCount;++i)
 	{
 		auto & ParticleI = GetParticle(i); 
 		Vector Acceleration = (ParticleI.Force / ParticleI.Mass) * Solver::DeltaTime* Solver::DeltaTime;;
 		Vector old = ParticleI.Position;
-		ParticleI.Position = (ParticleI.Position * 2) - ParticleI.PositionOld + Acceleration;
+		ParticleI.Position = (ParticleI.Position * (2 - Damping)) - (ParticleI.PositionOld * (1-Damping)) + Acceleration;
 		ParticleI.PositionOld = old;
 		ParticleI.Force = Vector();
 	}
 }
-void Solver::AddParticle(Vector vec)
+void Solver::AddParticle(Vector vec,float mass)
 {
 	if(ParticleCount < MaxParticles)
 	{
 		ParticleSwapList[ParticleCount] = Particle();
 		ParticleSwapList[ParticleCount].Position = vec;
 		ParticleSwapList[ParticleCount].PositionOld = vec;
-		ParticleSwapList[ParticleCount].PositionOld.Y += 0.1;
+		ParticleSwapList[ParticleCount].Mass = mass;
+	//	ParticleSwapList[ParticleCount].PositionOld.Y += 0.1;
 		ParticleCount++;
 	}
 }
