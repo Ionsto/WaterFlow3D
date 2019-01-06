@@ -1,6 +1,6 @@
 #include "WaterEngineParticle.h"
 #include "Vector.h"
-
+#include <fstream>
 WaterEngineParticle::WaterEngineParticle()
 {
 }
@@ -38,7 +38,7 @@ void WaterEngineParticle::UpdateDensityNode(ParticleNode & node, int sx, int sy,
 					int x = sx + dx;
 					int y = sy + dy;
 					int z = sz + dz;
-					if (ParticleList.InBounds(x,y,z))
+					if (!ParticleList.InBounds(x,y,z))
 					{
 						continue;
 					}
@@ -52,6 +52,7 @@ void WaterEngineParticle::UpdateDensityNode(ParticleNode & node, int sx, int sy,
 				}
 			}
 		}
+		particle.Pressure = ((particle.Density - Density0) * GasConstant);
 	}
 }
 float WaterEngineParticle::Poly6(float r)
@@ -86,7 +87,7 @@ void WaterEngineParticle::UpdateForcesNode(ParticleNode & node, int sx, int sy, 
 					int x = sx + dx;
 					int y = sy + dy;
 					int z = sz + dz;
-					if (ParticleList.InBounds(x, y, z))
+					if (!ParticleList.InBounds(x, y, z))
 					{
 						continue;
 					}
@@ -110,11 +111,53 @@ void WaterEngineParticle::UpdateForcesNode(ParticleNode & node, int sx, int sy, 
 				}
 			}
 		}
+		particle.Force.Y -= particle.Mass * Gravity;
 	}
 }
 void WaterEngineParticle::UpdateConditions()
 {
-
+	for(int x = 0;x < ParticleTree::Width;++x)
+	{
+		for (int y = 0; y < ParticleTree::Width; ++y)
+		{
+			for (int z = 0; z < ParticleTree::Height; ++z)
+			{
+				auto & node = ParticleList.GetNode(x, y, z);
+				UpdateConditionsNode(node);
+			}
+		}
+	}
+}
+void WaterEngineParticle::UpdateConditionsNode(ParticleNode & node)
+{
+	for(int i = 0;i < node.ParticleCount;++i)
+	{
+		auto & Particle = node.GetParticle(i); 
+		if(Particle.Position.X < 0)
+		{
+			float dx = Particle.Position.X - Particle.PositionOld.X;
+			Particle.PositionOld.X = 0;
+			Particle.Position.X = -dx*Restitution;
+		}
+		if(Particle.Position.Y < 0)
+		{
+			float dy = Particle.Position.Y - Particle.PositionOld.Y;
+			Particle.PositionOld.Y = 0;
+			Particle.Position.Y = -dy*Restitution;
+		}
+		if(Particle.Position.X > ParticleList.TotalWidth)
+		{
+			float dx = Particle.Position.X - Particle.PositionOld.X;
+			Particle.PositionOld.X = ParticleList.TotalWidth;
+			Particle.Position.X = ParticleList.TotalWidth-dx*Restitution;
+		}
+		if(Particle.Position.Y > ParticleList.TotalWidth)
+		{
+			float dy = Particle.Position.Y - Particle.PositionOld.Y;
+			Particle.PositionOld.Y = ParticleList.TotalWidth;
+			Particle.Position.Y = ParticleList.TotalWidth-dy*Restitution;
+		}
+	}
 }
 void WaterEngineParticle::Intergrate()
 {
@@ -147,16 +190,22 @@ void WaterEngineParticle::UpdateGrid()
 			for (int z = 0; z < ParticleTree::Height; ++z)
 			{
 				auto & node = ParticleList.GetNode(x, y, z);
-				for (int i = 0; i < node.ParticleCount; ++i)
+				for (int i = 0; i < node.ParticleCount && i >= 0; ++i)
 				{
 					auto particle = node.GetParticle(i);
 					float xgrid = std::floor(particle.Position.X / ParticleTree::Size);
 					float ygrid = std::floor(particle.Position.Y / ParticleTree::Size);
 					float zgrid = std::floor(particle.Position.Z / ParticleTree::Size);
+					if (!ParticleList.InBounds(xgrid, ygrid, zgrid))
+					{
+						node.RemoveParticle(i);
+						continue;
+					}
 					if (xgrid != x || ygrid != y || zgrid != z)
 					{
 						node.RemoveParticle(i);
 						ParticleList.GetNode(xgrid, ygrid, zgrid).AddParticle(particle);
+						i--;
 					}
 				}
 			}
@@ -174,4 +223,30 @@ void WaterEngineParticle::Update()
 float WaterEngineParticle::SpikyGrad(float r)
 {
 	return  -45.f / (3.14 * std::pow(SmoothingParam, 6.0)) * std::pow(SmoothingParam - r, 2.0);
+}
+void WaterEngineParticle::AddParticle(Vector pos, float mass)
+{
+	Particle p;
+	p.Mass = mass;
+	p.Position = pos;
+	p.PositionOld = pos;
+	ParticleList.AddParticle(p);
+}
+void WaterEngineParticle::Print(int t, std::ofstream & out)
+{
+	for (int x = 0; x < ParticleTree::Width; ++x)
+	{
+		for (int y = 0; y < ParticleTree::Width; ++y)
+		{
+			for (int z = 0; z < ParticleTree::Height; ++z)
+			{
+				auto & node = ParticleList.GetNode(x, y, z);
+				for (int i = 0; i < node.ParticleCount; ++i)
+				{
+					auto & ParticleI = node.GetParticle(i);
+					out << t << "," << ParticleI.Position.X << "," << ParticleI.Position.Y << "," << ParticleI.Position.Z << "," << ParticleI.Density << "\n";
+				}
+			}
+		}
+	}
 }

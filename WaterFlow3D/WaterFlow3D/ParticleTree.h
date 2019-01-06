@@ -24,7 +24,7 @@ public:
 	{
 		if (ParticleCount != MaxParticlesPerElement)
 		{
-			ParticleList[ParticleCount] = add;
+			ParticleList[ParticleCount++] = add;
 		}
 	}
 	void RemoveParticle(int position)
@@ -34,9 +34,13 @@ public:
 			ParticleCount--;
 			return;
 		}
-		if (ParticleCount < ParticleCount)
+		if (position < ParticleCount)
 		{
-			ParticleList[position] = ParticleList[ParticleCount--];
+			ParticleList[position] = ParticleList[ParticleCount-- - 1];
+		}
+		else {
+			throw;
+			//wtf
 		}
 	}
 };
@@ -46,6 +50,8 @@ public:
 	static constexpr int Width = 20;
 	static constexpr int Height = 1;
 	static constexpr const float Size = 1;
+	static constexpr const float TotalWidth = Size * Width;
+	static constexpr const float TotalHeight = Size * Height;
 private:
 	std::array<ParticleNode, (Width) * (Width) * (Height)> RawData;
 public:
@@ -58,5 +64,6 @@ public:
 	{
 		return RawData[(x * Width * Height) + (y * Height) + z];
 	}
+	void AddParticle(Particle particle);
 };
 

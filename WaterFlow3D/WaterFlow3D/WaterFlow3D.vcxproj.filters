@@ -39,12 +39,6 @@
     <ClCompile Include="GameManager.cpp">
       <Filter>Source Files\GamePlay</Filter>
     </ClCompile>
-    <ClCompile Include="RenderSoftware.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderEngine.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
     <ClCompile Include="WaterEngineParticle.cpp">
       <Filter>Source Files\GamePlay\Particle</Filter>
     </ClCompile>
@@ -77,5 +71,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="plot.py" />
+    <None Include="animated.py" />
+    <None Include="process3d.py" />
+    <None Include="process.py">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

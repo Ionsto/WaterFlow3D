@@ -141,8 +141,6 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ParticleTree.cpp" />
-    <ClCompile Include="RenderEngine.cpp" />
-    <ClCompile Include="RenderSoftware.cpp" />
     <ClCompile Include="Vector.cpp" />
     <ClCompile Include="WaterEngineParticle.cpp" />
   </ItemGroup>
@@ -155,7 +153,10 @@
     <ClInclude Include="WaterEngineParticle.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="animated.py" />
     <None Include="plot.py" />
+    <None Include="process.py" />
+    <None Include="process3d.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
