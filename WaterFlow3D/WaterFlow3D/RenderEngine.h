@@ -1,22 +1,24 @@
 #pragma once
+#include <GL/glew.h>
+#define GLFW_DLL
+#include <GLFW/glfw3.h>
 #include <array>
 #include "World.h"
-//#include <Eigen/Dense>
-struct RenderData {
-	char R, G, B;
-	float Depth;
-};
+#include <memory>
+#include "Shader.h"
+#include "ParticleTree.h"
+#include "ShaderProgram.h"
 class RenderEngine
 {
+private:
+	ShaderProgram program;
+	Shader vertex;
+	Shader fragment;
+	GLFWwindow* Window_Handle;
 public:
-	static constexpr int RenderWidth = 50;
-	static constexpr int RenderHeight = 50;
-	std::array<RenderData, RenderWidth * RenderHeight> RenderResult;
-	
-	RenderEngine();
+	RenderEngine(GLFWwindow * handle);
 	virtual ~RenderEngine();
 	void Render(World & world);
-	void RenderVoxelTree(VoxelTree & tree);
-	void RenderVoxel(VoxelTree & tree,int x,int y,int z);
+	void RenderTree(ParticleTree & tree);
 };
 

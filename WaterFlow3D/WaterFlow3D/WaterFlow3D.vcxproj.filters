@@ -31,6 +31,9 @@
     <Filter Include="Source Files\GamePlay\Particle">
       <UniqueIdentifier>{13cf1049-a786-42c4-be19-61a2df4f9096}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{47075185-da60-44a9-9cee-7c5941d42c2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,15 +51,24 @@
     <ClCompile Include="Vector.cpp">
       <Filter>Source Files\GamePlay\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="RenderEngine.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files\GamePlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h">
       <Filter>Header Files\GamePlay</Filter>
     </ClInclude>
     <ClInclude Include="RenderEngine.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderSoftware.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="WaterEngineParticle.h">
@@ -68,13 +80,26 @@
     <ClInclude Include="Vector.h">
       <Filter>Header Files\GamePlay\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files\GamePlay</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="plot.py" />
     <None Include="animated.py" />
     <None Include="process3d.py" />
-    <None Include="process.py">
-      <Filter>Source Files</Filter>
+    <None Include="process.py" />
+    <None Include="points.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="points.frag">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

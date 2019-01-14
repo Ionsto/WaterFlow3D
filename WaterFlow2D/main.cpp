@@ -11,7 +11,7 @@ int main(int argc, char** args)
 	std::ofstream out("data.txt");
 	std::ofstream timingout("timing.txt");
 	static constexpr const int RunTime = 1000;
-	constexpr const float WaterMass = 1;
+	constexpr const float WaterMass = 800;
 	std::ios_base::sync_with_stdio(false);
 	std::array<int,RunTime> TimingArray;
 	Solver solver;

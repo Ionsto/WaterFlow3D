@@ -7,7 +7,15 @@ struct Particle {
 	Vector Force;
 	float Density = 0;
 	float Pressure = 0;
+	/*
+	100000 sand
+	*/
+	float Viscosity = 100000;
 	float Mass = 0;
+	/*
+	1000 sand and water
+	*/
+	float Density0 = 1000;
 };
 class ParticleNode {
 public:

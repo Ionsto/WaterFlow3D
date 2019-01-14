@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -70,8 +70,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\Github\WaterFlow3D\SFML-2.5.1\include;D:\Github\WaterFlow3D\eigen-eigen-9efe9e1c4612\;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Github\WaterFlow3D\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Github\WaterFlow3D\SFML-2.5.1\include;D:\Github\WaterFlow3D\glfw-3.2.1\include;D:\Github\WaterFlow3D\glew-2.1.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Github\WaterFlow3D\glfw-3.2.1\lib-vc2015;D:\Github\WaterFlow3D\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\Github\WaterFlow3D\SFML-2.5.1\include;D:\Github\WaterFlow3D\eigen-eigen-9efe9e1c4612\;$(IncludePath)</IncludePath>
@@ -134,27 +134,35 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>sfml-system.lib;sfml-graphics.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ParticleTree.cpp" />
+    <ClCompile Include="RenderEngine.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Vector.cpp" />
     <ClCompile Include="WaterEngineParticle.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="ParticleTree.h" />
     <ClInclude Include="RenderEngine.h" />
-    <ClInclude Include="RenderSoftware.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="WaterEngineParticle.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="animated.py" />
     <None Include="plot.py" />
+    <None Include="points.frag" />
+    <None Include="points.vert" />
     <None Include="process.py" />
     <None Include="process3d.py" />
   </ItemGroup>
