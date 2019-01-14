@@ -1,6 +1,3 @@
-cflag = -std=c++0x -O3 -ffast-math
-rule g
-  command = g++ $cflag $in -o ./GOut/$out 
 build GameManager.o:g GameManager.cpp
 build RenderEngine.o:g RenderEngine.cpp
 build RenderSoftware.o:g RenderSoftware.cpp
@@ -11,3 +8,18 @@ build WaterEngineBinary.o:g WaterEngineBinary.cpp
 build WaterEngineEnergy.o:g WaterEngineEnergy.cpp
 build World.o:g World.cpp
 build main.o:g main.cpp
+
+cflag = -std=c++0x -O3 --fast-math -fopenmp -lopengl32 -lglu32
+rule g-win
+  depfile = $out.d
+  command = x86_64-w64-mingw32-g++.exe -MMD -MF $out.d $cflag -c $in -o $out 
+rule link-win
+  command = x86_64-w64-mingw32-g++.exe $cflag $in -o $out 
+rule g
+  depfile = $out.d
+  command = g++ -MMD -MF $out.d $cflag -c $in -o $out 
+rule link
+  command = g++ $cflag $in -o $out 
+build ./GOut/Solver.o:g Solver.cpp
+build ./GOut/main.o:g main.cpp
+build Sim.out:link ./GOut/main.o ./GOut/Solver.o 
