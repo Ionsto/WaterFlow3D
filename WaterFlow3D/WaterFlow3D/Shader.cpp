@@ -31,7 +31,7 @@ bool Shader::Init(std::string location, GLenum shaderType)
 	// Check the result of the compilation
 	GLint test;
 	glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &test);
-	if (!test) {
+	if (test == GL_FALSE) {
 		std::cout << "Shader compilation failed with this message:" << std::endl;
 		std::vector<char> compilation_log(512);
 		glGetShaderInfoLog(ShaderID, compilation_log.size(), NULL, &compilation_log[0]);

@@ -12,5 +12,9 @@ public:
 	void AddShader(Shader shader);
 	void LinkProgram();
 	void UseProgram();
+	GLint GetProgram()
+	{
+		return ProgramID;
+	}
 };
 

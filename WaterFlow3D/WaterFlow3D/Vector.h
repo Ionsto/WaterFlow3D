@@ -1,15 +1,15 @@
 #pragma once
 #include <cmath>
 struct Vector {
-	float X = 0, Y = 0,Z = 0;//x y z
-	Vector(float x = 0, float y = 0,float z = 0) : X(x), Y(y), Z(z) {};
+	double X = 0, Y = 0,Z = 0;//x y z
+	Vector(double x = 0, double y = 0,double z = 0) : X(x), Y(y), Z(z) {};
 	Vector operator+(Vector vec) {
 		return Vector(X + vec.X, Y + vec.Y,Z + vec.Z);
 	}
 	Vector operator-(Vector vec) {
 		return Vector(X - vec.X, Y - vec.Y, Z - vec.Z);
 	}
-	Vector operator-(float v) {
+	Vector operator-(double v) {
 		return Vector(X - v, Y - v, Z - v);
 	}
 	void operator-=(Vector vec) {
@@ -22,17 +22,17 @@ struct Vector {
 		Y += vec.Y;
 		Z += vec.Z;
 	}
-	float Dot(Vector & vec) {
+	double Dot(Vector & vec) {
 		return (X * vec.X) + (Y * vec.Y) + (Z * vec.Z);
 	}
-	float Magnitude()
+	double Magnitude()
 	{
 		return std::sqrt(Dot(*this));
 	}
-	Vector operator/(float v) {
+	Vector operator/(double v) {
 		return Vector(X / v, Y / v, Z / v);
 	}
-	Vector operator*(float v) {
+	Vector operator*(double v) {
 		return Vector(X * v, Y * v, Z * v);
 	}
 	Vector& operator=(const Vector & v) {

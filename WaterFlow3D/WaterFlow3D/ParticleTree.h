@@ -1,12 +1,15 @@
 #pragma once
 #include <array>
 #include "Vector.h"
+#include <iostream>
 struct Particle {
+	bool Sand = true;
 	Vector Position;
 	Vector PositionOld;
 	Vector Force;
 	float Density = 0;
 	float Pressure = 0;
+	float GasConstant = 100;
 	/*
 	100000 sand
 	*/
@@ -28,12 +31,15 @@ public:
 	{
 		return ParticleList[i];
 	}
-	void AddParticle(Particle add)
+	bool AddParticle(Particle add)
 	{
 		if (ParticleCount != MaxParticlesPerElement)
 		{
 			ParticleList[ParticleCount++] = add;
+			return true;
 		}
+		std::cout << "Failed to add particle\n";
+		return false;
 	}
 	void RemoveParticle(int position)
 	{
@@ -55,9 +61,9 @@ public:
 class ParticleTree
 {
 public:
-	static constexpr int Width = 20;
+	static constexpr int Width = 100;
 	static constexpr int Height = 1;
-	static constexpr const float Size = 1;
+	static constexpr const float Size = 1.2;
 	static constexpr const float TotalWidth = Size * Width;
 	static constexpr const float TotalHeight = Size * Height;
 private:

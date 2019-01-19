@@ -11,6 +11,7 @@ WaterEngineParticle::~WaterEngineParticle()
 }
 void WaterEngineParticle::UpdateDensity()
 {
+#pragma omp parallel for //collapse(3)
 	for(int x = 0;x < ParticleTree::Width;++x)
 	{
 		for (int y = 0; y < ParticleTree::Width; ++y)
@@ -46,21 +47,27 @@ void WaterEngineParticle::UpdateDensityNode(ParticleNode & node, int sx, int sy,
 					for (int n = 0; n < comparenode.ParticleCount; ++n)
 					{
 						auto cparticle = comparenode.GetParticle(n);
-						float Distance = (particle.Position - cparticle.Position).Magnitude();
-						particle.Density += cparticle.Mass * Poly6(Distance); 
+						double Distance = (particle.Position - cparticle.Position).Magnitude();
+						//Distance = std::max(0.5,Distance);
+						if (Distance < SmoothingParam)
+						{
+							particle.Density += cparticle.Mass * Poly6(Distance);
+						}
 					}
 				}
 			}
 		}
-		particle.Pressure = ((particle.Density - particle.Density0) * GasConstant);
+		//particle.Pressure = std::max(0.0f,((particle.Density - particle.Density0) * particle.GasConstant));
+		particle.Pressure =(((particle.Density - particle.Density0) * particle.GasConstant));
 	}
 }
-float WaterEngineParticle::Poly6(float r)
+double WaterEngineParticle::Poly6(double r)
 {
 	return 315.f * std::pow((SmoothingParam * SmoothingParam) - (r * r), 3.0) / (64.f * 3.14 * pow(SmoothingParam, 9.0f));
 }
 void WaterEngineParticle::UpdateForces()
 {
+#pragma omp parallel for //collapse(3)
 	for(int x = 0;x < ParticleTree::Width;++x)
 	{
 		for (int y = 0; y < ParticleTree::Width; ++y)
@@ -96,21 +103,24 @@ void WaterEngineParticle::UpdateForcesNode(ParticleNode & node, int sx, int sy, 
 					{
 						auto cparticle = comparenode.GetParticle(n);
 						Vector difference = particle.Position - cparticle.Position;
-						float distance = difference.Magnitude();
+						double distance = difference.Magnitude();
 						if (distance != 0 && distance < SmoothingParam && cparticle.Density != 0 && particle.Density != 0)
 						{
-							float PressureForce = ((particle.Pressure + cparticle.Pressure)) * SpikyGrad(distance);
+							double PressureForce = ((particle.Pressure + cparticle.Pressure)) * SpikyGrad(distance);
 							difference = difference / distance;
 							particle.Force -= difference * (PressureForce * cparticle.Mass / (2.0*cparticle.Density));
 							cparticle.Force += difference * (PressureForce * particle.Mass / (2.0*particle.Density));
 							Vector cvel = (cparticle.Position - cparticle.PositionOld) / DeltaTime;
 							Vector pvel = (particle.Position - particle.PositionOld) / DeltaTime;
-							float LaplaceFactor = LaplaceVisc(distance);
+							double LaplaceFactor = LaplaceVisc(distance);
 							Vector dv = (cvel - pvel);
-							float InteractionViscosity = (particle.Viscosity + cparticle.Viscosity) / 2.0;
-							float ViscFactor =  (LaplaceFactor * InteractionViscosity * cparticle.Density / particle.Mass);
-							float ViscFactorc = (LaplaceFactor * InteractionViscosity * cparticle.Density / particle.Mass);
-							Vector TanVec = dv - (difference * (difference.Dot(dv) / dv.Magnitude()));
+							//double InteractionViscosity = (particle.Viscosity + cparticle.Viscosity) / 2.0;
+							double InteractionViscosity = particle.Viscosity * cparticle.Viscosity;
+							double ViscFactor =  (LaplaceFactor * InteractionViscosity * cparticle.Mass / cparticle.Density);
+							double ViscFactorc = (LaplaceFactor * InteractionViscosity * particle.Mass / particle.Density);
+							Vector TanVec = dv - (difference * (difference.Dot(dv)));
+							double error = TanVec.Dot(difference);
+							//std::cout << "ERR:" << error << "\n";
 							particle.Force += TanVec * ViscFactor;
 							cparticle.Force -= TanVec * ViscFactorc;
 						}
@@ -119,6 +129,7 @@ void WaterEngineParticle::UpdateForcesNode(ParticleNode & node, int sx, int sy, 
 			}
 		}
 		particle.Force.Y -= particle.Mass * Gravity;
+		//particle.Force += Vector(BrownianMotion(distibution),BrownianMotion(distibution),0);
 	}
 }
 void WaterEngineParticle::UpdateConditions()
@@ -135,6 +146,16 @@ void WaterEngineParticle::UpdateConditions()
 		}
 	}
 }
+void WaterEngineParticle::UpdateConditionsAxis(double &x, double &y, double &z, double &ox, double &oy, double &oz,double lim)
+{
+	double dx = x - ox;
+	double dy = y - oy;
+	double dz = z - oz;
+	ox = lim;
+	x = lim-dx*Restitution;
+	y -= dy * BoundaryFriction;
+	z -= dz * BoundaryFriction;
+}
 void WaterEngineParticle::UpdateConditionsNode(ParticleNode & node)
 {
 	for (int i = 0; i < node.ParticleCount; ++i)
@@ -142,30 +163,51 @@ void WaterEngineParticle::UpdateConditionsNode(ParticleNode & node)
 		auto & Particle = node.GetParticle(i);
 		if (Particle.Position.X < 0)
 		{
-			Vector vel = Particle.Position - Particle.PositionOld;
-			Particle.PositionOld.X = 0;
-			Particle.Position.X = -vel.X*Restitution;
-			Particle.PositionOld.Y += vel.Y * BoundaryFriction;
+			UpdateConditionsAxis(
+				Particle.Position.X,
+				Particle.Position.Y,
+				Particle.Position.Z,
+				Particle.PositionOld.X,
+				Particle.PositionOld.Y,
+				Particle.PositionOld.Z,
+				0
+			);
 		}
 		if (Particle.Position.Y < 0)
 		{
-			Vector vel = Particle.Position - Particle.PositionOld;
-			Particle.PositionOld.Y = 0;
-			Particle.Position.Y = -vel.Y*Restitution;
-			Particle.PositionOld.X += vel.X * BoundaryFriction;
-			Particle.PositionOld.Z += vel.Z * BoundaryFriction;
+			UpdateConditionsAxis(
+				Particle.Position.Y,
+				Particle.Position.X,
+				Particle.Position.Z,
+				Particle.PositionOld.Y,
+				Particle.PositionOld.X,
+				Particle.PositionOld.Z,
+				0
+			);
 		}
 		if (Particle.Position.X > ParticleList.TotalWidth)
 		{
-			Vector vel = Particle.Position - Particle.PositionOld;
-			Particle.PositionOld.X = ParticleList.TotalWidth;
-			Particle.Position.X = ParticleList.TotalWidth - vel.X*Restitution;
+			UpdateConditionsAxis(
+				Particle.Position.X,
+				Particle.Position.Y,
+				Particle.Position.Z,
+				Particle.PositionOld.X,
+				Particle.PositionOld.Y,
+				Particle.PositionOld.Z,
+				ParticleList.TotalWidth	
+			);
 		}
 		if (Particle.Position.Y > ParticleList.TotalWidth)
 		{
-			Vector vel = Particle.Position - Particle.PositionOld;
-			Particle.PositionOld.Y = ParticleList.TotalWidth;
-			Particle.Position.Y = ParticleList.TotalWidth - vel.Y*Restitution;
+			UpdateConditionsAxis(
+				Particle.Position.Y,
+				Particle.Position.X,
+				Particle.Position.Z,
+				Particle.PositionOld.Y,
+				Particle.PositionOld.X,
+				Particle.PositionOld.Z,
+			ParticleList.TotalWidth	
+			);
 		}
 	}
 }
@@ -191,14 +233,14 @@ void WaterEngineParticle::UpdateFrictionNode(ParticleNode & node)
 		if (Particle.Position.X < 0)
 		{
 			Vector vel = Particle.Position - Particle.PositionOld;
-			float FrictionMax = BoundaryFriction * std::abs(Particle.Force.X / DeltaTime);
+			double FrictionMax = BoundaryFriction * std::abs(Particle.Force.X / DeltaTime);
 			Particle.Force.Y += std::copysignf(-vel.Y, std::min(std::abs(Particle.Force.Y), FrictionMax));
 			Particle.Force.Z += std::copysignf(-vel.Z, std::min(std::abs(Particle.Force.Z), FrictionMax));
 		}
 		if (Particle.Position.Y < 0)
 		{
 			Vector vel = Particle.Position - Particle.PositionOld;
-			float FrictionMax = BoundaryFriction * std::abs(Particle.Force.Y);
+			double FrictionMax = BoundaryFriction * std::abs(Particle.Force.Y);
 			Particle.Force.X += std::copysignf(-vel.X, std::min(std::abs(Particle.Force.X), FrictionMax));
 			Particle.Force.X += std::copysignf(-vel.X, std::min(std::abs(Particle.Force.X), FrictionMax));
 //			Particle.Force.Z += std::copysignf(-vel.Z, std::min(std::abs(vel.Z / (DeltaTime * DeltaTime)), FrictionMax));
@@ -207,14 +249,14 @@ void WaterEngineParticle::UpdateFrictionNode(ParticleNode & node)
 		if (Particle.Position.X > ParticleList.TotalWidth)
 		{
 			Vector vel = Particle.Position - Particle.PositionOld;
-			float FrictionMax = BoundaryFriction * std::abs(vel.X / DeltaTime);
+			double FrictionMax = BoundaryFriction * std::abs(vel.X / DeltaTime);
 			Particle.Force.Y += std::copysignf(-vel.Y, std::min(std::abs(vel.Y / DeltaTime), FrictionMax));
 			Particle.Force.Z += std::copysignf(-vel.Z, std::min(std::abs(vel.Z / DeltaTime), FrictionMax));
 		}
 		if (Particle.Position.Y > ParticleList.TotalWidth)
 		{
 			Vector vel = Particle.Position - Particle.PositionOld;
-			float FrictionMax = BoundaryFriction * std::abs(vel.Y / DeltaTime);
+			double FrictionMax = BoundaryFriction * std::abs(vel.Y / DeltaTime);
 			Particle.Force.X += std::copysignf(-vel.X, std::min(std::abs(vel.X / DeltaTime), FrictionMax));
 			Particle.Force.Z += std::copysignf(-vel.Z, std::min(std::abs(vel.Z / DeltaTime), FrictionMax));
 		}
@@ -253,13 +295,19 @@ void WaterEngineParticle::UpdateGrid()
 				for (int i = 0; i < node.ParticleCount && i >= 0; ++i)
 				{
 					auto particle = node.GetParticle(i);
-					float xgrid = std::floor(particle.Position.X / ParticleTree::Size);
-					float ygrid = std::floor(particle.Position.Y / ParticleTree::Size);
-					float zgrid = std::floor(particle.Position.Z / ParticleTree::Size);
+					int xgrid = (std::floor(particle.Position.X / ParticleTree::Size));
+					int ygrid = (std::floor(particle.Position.Y / ParticleTree::Size));
+					int zgrid = (std::floor(particle.Position.Z / ParticleTree::Size));
 					if (!ParticleList.InBounds(xgrid, ygrid, zgrid))
 					{
-						node.RemoveParticle(i);
-						continue;
+						particle.Position.Clamp(Vector(), Vector(ParticleTree::TotalWidth, ParticleTree::TotalWidth, ParticleTree::TotalHeight));
+						//node.RemoveParticle(i);
+						std::cout << "Particle out of world - removed\n";
+						//i--;
+						//continue;
+						xgrid = std::clamp(static_cast<int>(std::floor(particle.Position.X / ParticleTree::Size)),0,ParticleTree::Width-1);
+						ygrid = std::clamp(static_cast<int>(std::floor(particle.Position.Y / ParticleTree::Size)),0,ParticleTree::Width-1);
+						zgrid = std::clamp(static_cast<int>(std::floor(particle.Position.Z / ParticleTree::Size)),0,ParticleTree::Height-1);
 					}
 					if (xgrid != x || ygrid != y || zgrid != z)
 					{
@@ -281,16 +329,16 @@ void WaterEngineParticle::Update()
 	UpdateConditions();
 	UpdateGrid();
 }
-float WaterEngineParticle::SpikyGrad(float r)
+double WaterEngineParticle::SpikyGrad(double r)
 {
 	return  -45.f / (3.14 * std::pow(SmoothingParam, 6.0)) * std::pow(SmoothingParam - r, 2.0);
 }
-float WaterEngineParticle::LaplaceVisc(float r)
+double WaterEngineParticle::LaplaceVisc(double r)
 {
-	return 45.f / (3.14 * pow(SmoothingParam, 6.0)) * (SmoothingParam - r);
+	return 45.f / (3.14 * pow(SmoothingParamViscosity, 6.0)) * (SmoothingParamViscosity - r);
 }
 
-void WaterEngineParticle::AddParticle(Vector pos, float mass)
+void WaterEngineParticle::AddParticle(Vector pos, double mass)
 {
 	Particle p;
 	p.Mass = mass;

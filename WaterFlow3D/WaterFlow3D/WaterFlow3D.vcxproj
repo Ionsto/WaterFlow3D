@@ -74,8 +74,8 @@
     <LibraryPath>D:\Github\WaterFlow3D\glfw-3.2.1\lib-vc2015;D:\Github\WaterFlow3D\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\Github\WaterFlow3D\SFML-2.5.1\include;D:\Github\WaterFlow3D\eigen-eigen-9efe9e1c4612\;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Github\WaterFlow3D\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Github\WaterFlow3D\SFML-2.5.1\include;D:\Github\WaterFlow3D\glfw-3.2.1\include;D:\Github\WaterFlow3D\glew-2.1.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Github\WaterFlow3D\glfw-3.2.1\lib-vc2015;D:\Github\WaterFlow3D\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,7 +98,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>sfml-system-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
