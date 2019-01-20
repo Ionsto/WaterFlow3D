@@ -1,13 +1,19 @@
-cflag = -std=c++0x -O3 -ffast-math
+includes = -I/mnt/c/Code/WaterFlow3D/glew-2.1.0/include/ -I/mnt/c/Code/WaterFlow3D/glfw-3.2.1/include/ 
+libsfolder = -L/mnt/c/Code/WaterFlow3D/glew/lib/ -L/mnt/c/Code/WaterFlow3D/glfw-3.2.1/lib-mingw-w64/
+libs = -lopengl32 -lglew32 -lglfw3dll
+cflag = -std=c++17  --fast-math $includes $libsfolder $libs 
 rule g
-  command = g++ $cflag $in -o ./GOut/$out 
-build GameManager.o:g GameManager.cpp
-build RenderEngine.o:g RenderEngine.cpp
-build RenderSoftware.o:g RenderSoftware.cpp
-build Vector.o:g Vector.cpp
-build VoxelTree.o:g VoxelTree.cpp
-build WaterEngine.o:g WaterEngine.cpp
-build WaterEngineBinary.o:g WaterEngineBinary.cpp
-build WaterEngineEnergy.o:g WaterEngineEnergy.cpp
-build World.o:g World.cpp
-build main.o:g main.cpp
+  depfile = $out.d
+  command = x86_64-w64-mingw32-g++ -MMD -MF $out.d $cflag -c $in -o $out 
+rule link
+  command = x86_64-w64-mingw32-g++ $cflag $in -o $out 
+build ./GOut/GameManager.o:g GameManager.cpp
+build ./GOut/ParticleTree.o:g ParticleTree.cpp
+build ./GOut/RenderEngine.o:g RenderEngine.cpp
+build ./GOut/Shader.o:g Shader.cpp
+build ./GOut/ShaderProgram.o:g ShaderProgram.cpp
+build ./GOut/Vector.o:g Vector.cpp
+build ./GOut/WaterEngineParticle.o:g WaterEngineParticle.cpp
+build ./GOut/World.o:g World.cpp
+build ./GOut/main.o:g main.cpp
+build WaterFlow.exe:link ./GOut/GameManager.o ./GOut/main.o ./GOut/RenderEngine.o ./GOut/Shader.o ./GOut/ShaderProgram.o ./GOut/Vector.o ./GOut/World.o ./GOut/ParticleTree.o ./GOut/WaterEngineParticle.o  
