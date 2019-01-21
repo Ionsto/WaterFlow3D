@@ -42,7 +42,7 @@ void TestWaterSim()
 }
 void TestGameSystem()
 {
-	GameManager gm = GameManager();
+	GameManager gm;
 	gm.Run();
 }
 int main(int argc, char **args) {

@@ -1,0 +1,44 @@
+#version 410
+const float TableMass[2] = {100,900};
+const float TableViscosity = {5,600};
+const float TableDensity0 = {200,1000};
+const float TableGasConstant = {500,800};
+
+void main()
+{
+	//Get these from launch params
+	int x = 0;
+	int y = 0;
+	int z = 0;
+	auto & particle = node.GetParticle(i);
+	particle.Density = 0;
+	for (int dx = -1; dx <= 1; ++dx)
+	{
+		for (int dy = -1; dy <= 1; ++dy)
+		{
+			for (int dz = -1; dz <= 1; ++dz)
+			{
+				int x = sx + dx;
+				int y = sy + dy;
+				int z = sz + dz;
+				if (!ParticleList.InBounds(x,y,z))
+				{
+					continue;
+				}
+				auto & comparenode = ParticleList.GetNode(x, y, z);
+				for (int n = 0; n < comparenode.ParticleCount; ++n)
+				{
+					auto cparticle = comparenode.GetParticle(n);
+					double Distance = (particle.Position - cparticle.Position).Magnitude();
+					//Distance = std::max(0.5,Distance);
+					if (Distance < SmoothingParam)
+					{
+						particle.Density += cparticle.Mass * Poly6(Distance);
+					}
+				}
+			}
+		}
+	}
+	//particle.Pressure = std::max(0.0f,((particle.Density - particle.Density0) * particle.GasConstant));
+	particle.Pressure =(((particle.Density - particle.Density0) * particle.GasConstant));
+}

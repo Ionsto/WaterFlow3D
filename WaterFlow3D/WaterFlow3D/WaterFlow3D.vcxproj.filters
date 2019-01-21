@@ -101,5 +101,8 @@
     <None Include="points.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="density.comp">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

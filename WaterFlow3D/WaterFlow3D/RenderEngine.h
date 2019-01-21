@@ -22,7 +22,7 @@ private:
 	int PointCount[2] = { 0,0 };
 	GLuint VertexBuffers[2];
 	GLuint TypeBuffers[2];
-	static const constexpr int MaxRenderParticles = 10000;
+	static const constexpr int MaxRenderParticles = 50000;
 public:
 	RenderEngine(GLFWwindow * handle);
 	virtual ~RenderEngine();

@@ -22,7 +22,7 @@ void World::Update(float dtreal)
 			static constexpr double WaterMass = 2000;
 			static constexpr double WaterFlowRate = 2000;
 			if ( t % static_cast<int>(100 / (WaterMass * waterengine.DeltaTime)) == 0) {
-			Vector pos = Vector(5 + (rand() % 10) / 15.0f, 15);
+			Vector pos = Vector(5 + (rand() % 10) / 15.0f, 55);
 				AddWater(pos);
 			}
 			waterengine.Update();
@@ -49,7 +49,7 @@ void World::AddWater(Vector pos) {
 	p.Sand = false;
 	p.Viscosity = 5;
 	p.Density0 = 200;
-	p.GasConstant = 100;
+	p.GasConstant = 500;
 	p.Position = pos;
 	p.PositionOld = pos;
 	waterengine.AddParticle(p);
