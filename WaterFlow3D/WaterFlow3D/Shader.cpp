@@ -15,6 +15,7 @@ Shader::~Shader()
 }
 bool Shader::Init(std::string location, GLenum shaderType)
 {
+	std::cout << "Loading shader:" << location << std::endl;
 	std::ifstream input(location);
 	std::stringstream buffer;
 	if (!input.is_open())

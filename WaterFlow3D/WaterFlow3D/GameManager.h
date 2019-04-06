@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #define GLFW_DLL
 #include <GLFW/glfw3.h>
-#include "RenderEngine.h"
+#include "RenderEngineGPU.h"
 #include "WaterEngineParticle.h"
 #include <memory>
 #include <chrono>
@@ -18,7 +18,7 @@ public:
 	int clicktickerwater = 0;
 	bool Running = true;
 	std::unique_ptr<World> world;
-	std::unique_ptr<RenderEngine> renderengine;
+	std::unique_ptr<RenderEngineGPU> renderengine;
 	GLFWwindow* Window_Handle;
 	GameManager();
 	~GameManager();

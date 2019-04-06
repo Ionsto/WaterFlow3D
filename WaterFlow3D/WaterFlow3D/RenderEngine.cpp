@@ -22,37 +22,24 @@ MessageCallback(GLenum source,
 RenderEngine::RenderEngine(GLFWwindow * handle)
 {
 
+	std::cout<< "Debug messages" <<  std::endl;
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 	Window_Handle = handle;
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
 	const GLubyte* version = glGetString(GL_VERSION); // version as a string
-	std::cout<< "renderer supported" << renderer << std::endl;
-	std::cout<< "OpenGL version supported" << version << std::endl;
+	std::cout<< "Renderer supported:" << renderer << std::endl;
+	std::cout<< "OpenGL version supported:" << version << std::endl;
 	glPointSize(2);
+	std::cout<< "Init shaders" << renderer << std::endl;
 	vertex.Init("points.vert", GL_VERTEX_SHADER);
 	fragment.Init("points.frag", GL_FRAGMENT_SHADER);
+	std::cout << "Creating program" << std::endl;
 	program.CreateProgram();
 	program.AddShader(vertex);
 	program.AddShader(fragment);
 	program.LinkProgram();
 	program.UseProgram();
-	//glUseProgram(0);
-	/*glGenVertexArrays(1, &TestVertexArray);
-	glGenBuffers(1, &TestVertexBuffer);
-	glBindVertexArray(TestVertexArray);
-	//glGenBuffers(1, &TestVertexBuffer);
-	float verts[] = {
-		0.5, 0,0
-	};
-	glBindBuffer(GL_ARRAY_BUFFER, TestVertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glBindBuffer(GL_ARRAY_BUFFER,0);
-	glBindVertexArray(0);*/
-	//glGenVertexArrays(2, &VertexArrays[0]);
-	//glBindVertexArray(VertexArrays[0]);
 	glGenBuffers(2, VertexBuffers);
 	glGenBuffers(2, TypeBuffers);
 	//GLint loc = glGetUniformLocation(program.GetProgram(), "uColor");
@@ -63,7 +50,7 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::Render(World & world)
 {
-	RenderTree(world.waterengine.ParticleList);
+	//RenderTree(world.waterengine.ParticleList);
 }
 
 void RenderEngine::RenderTree(ParticleTree & tree)
@@ -103,6 +90,7 @@ void RenderEngine::RenderTree(ParticleTree & tree)
 //	glBindVertexArray(0);
 
 
+	program.UseProgram();
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffers[CurrentBuffer]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * MaxRenderParticles, &VertexData[0], GL_STREAM_DRAW);
 	glEnableVertexAttribArray(0);

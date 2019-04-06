@@ -8,8 +8,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 GameManager::GameManager()
 {
+	std::cout << "Attempting to init glfw" << std::endl;
 	if (!glfwInit())
 	{
+		std::cout << "Couldn't init glfw" << std::endl;
 		// Initialization failed
 		throw;
 	}
@@ -25,16 +27,23 @@ GameManager::GameManager()
 		std::cout << "Window load failed" << std::endl;
 		throw;
 	}
+	std::cout << "Setting up opengl" << std::endl;
 	glfwSetFramebufferSizeCallback(Window_Handle, framebuffer_size_callback);
 	glfwMakeContextCurrent(Window_Handle);
 	glfwSwapInterval(0);
+	std::cout << "Init glew" << std::endl;
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
 		std::cerr << "Failed to initialize GLEW! I'm out!" << std::endl;
 		throw;
 	}
-	renderengine = std::make_unique<RenderEngine>(Window_Handle);
+	std::cout << "Init world" << std::endl;
 	world = std::make_unique<World>();
+	std::cout << "Init GPU sys" << std::endl;
+	world->waterengine.Init(Window_Handle);
+	world->AddWater(Vector(100,100));
+	std::cout << "Init render engine" << std::endl;
+	renderengine = std::make_unique<RenderEngineGPU>(Window_Handle,*world.get());
 	int width, height;
 	glfwGetFramebufferSize(Window_Handle, &width, &height);
 	glViewport(0, 0, width, height);
@@ -49,6 +58,7 @@ GameManager::~GameManager()
 
 void GameManager::Run()
 {
+	std::cout << "Starting game" << std::endl;
 	DtCounter = std::chrono::high_resolution_clock::now();
 	while (Running)
 	{
@@ -61,7 +71,7 @@ void GameManager::Run()
 			auto now = std::chrono::high_resolution_clock::now();
 			auto dt = now - StartTime;
 			StartTime = now;
-			std::cout << "Frametime:" << (dt.count() / (100.0 * 1000000000)) << "\n fps:" << ((100.0*1000000000) / dt.count()) << "\n";
+			//std::cout << "Frametime:" << (dt.count() / (100.0 * 1000000000)) << "\n fps:" << ((100.0*1000000000) / dt.count()) << "\n";
 			FrameCount = 0;
 		}
 		auto end = std::chrono::high_resolution_clock::now();
@@ -74,6 +84,7 @@ void GameManager::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	renderengine->Render(*world.get());
+	//world->waterengine.Render();
 }
 void GameManager::PollInput()
 {
@@ -86,8 +97,8 @@ void GameManager::PollInput()
 			int left, top, right, bottom;
 			glfwGetWindowFrameSize(Window_Handle, &left, &top, &right, &bottom);
 			glfwGetWindowSize(Window_Handle, &width, &height);
-			float x = (xpos / width) * world->waterengine.ParticleList.TotalWidth;
-			float y = (1.0 - (ypos / height)) * world->waterengine.ParticleList.TotalWidth;
+			float x = (xpos / width) * world->waterengine.TotalWidth;
+			float y = (1.0 - (ypos / height)) * world->waterengine.TotalWidth;
 			Vector pos(x, y, 0);
 			pos += Vector(((rand() % 100) / 100.0f) - 0.5) * 10;
 			if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)

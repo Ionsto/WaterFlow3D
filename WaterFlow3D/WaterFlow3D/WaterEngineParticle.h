@@ -17,6 +17,8 @@ private:
 	static const constexpr double Gravity = 9.81;
 	static const constexpr double Restitution = 0.5;
 	static const constexpr double Damping = 0.001;
+	static const constexpr float TotalWidth = ParticleTree::TotalWidth;
+	static const constexpr float TotalHeight = ParticleTree::TotalHeight;
 	std::random_device rd;
 	std::mt19937 distibution{rd()};
 	std::normal_distribution<double> BrownianMotion{ 0, 200 };

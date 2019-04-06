@@ -3,42 +3,43 @@ const float TableMass[2] = {100,900};
 const float TableViscosity = {5,600};
 const float TableDensity0 = {200,1000};
 const float TableGasConstant = {500,800};
-
+layout( location=0 ) uniform int ParticleCount;       
+layout (local_size_x = 128) in;
+layout(std430, binding = 0) buffer position_block
+{
+	vec3 Position[];
+};
+layout(std430, binding = 1) buffer position_old_block
+{
+	vec3 PositionOld[];
+};
+layout(std430,binding = 2) buffer pressure_block
+{
+	float Pressure[];
+};
+layout(std430,binding = 3) buffer density_block
+{
+	float Density[];
+};
+layout(std430,binding = 4) buffer type_block
+{
+	int Type[];
+};
+float Poly6(float r)
+{
+	return 315.0 * pow((SmoothingParam * SmoothingParam) - (r * r), 3.0) / (64.0 * 3.14 * pow(SmoothingParam, 9.0));
+}
 void main()
 {
-	//Get these from launch params
-	int x = 0;
-	int y = 0;
-	int z = 0;
-	auto & particle = node.GetParticle(i);
-	particle.Density = 0;
-	for (int dx = -1; dx <= 1; ++dx)
+	uint i = gl_GlobalInvocationID.x;
+	Density[i] = 0;
+	for(int j = 0;j < ParticleCount;++j)
 	{
-		for (int dy = -1; dy <= 1; ++dy)
-		{
-			for (int dz = -1; dz <= 1; ++dz)
-			{
-				int x = sx + dx;
-				int y = sy + dy;
-				int z = sz + dz;
-				if (!ParticleList.InBounds(x,y,z))
-				{
-					continue;
-				}
-				auto & comparenode = ParticleList.GetNode(x, y, z);
-				for (int n = 0; n < comparenode.ParticleCount; ++n)
-				{
-					auto cparticle = comparenode.GetParticle(n);
-					double Distance = (particle.Position - cparticle.Position).Magnitude();
-					//Distance = std::max(0.5,Distance);
-					if (Distance < SmoothingParam)
-					{
-						particle.Density += cparticle.Mass * Poly6(Distance);
-					}
-				}
-			}
+		float distance = length(Position[i] - Position[j]);
+		if(distance < SmoothingParam){
+			Density[i] += Poly6(distance) * Mass[Type[j]]);
 		}
 	}
-	//particle.Pressure = std::max(0.0f,((particle.Density - particle.Density0) * particle.GasConstant));
-	particle.Pressure =(((particle.Density - particle.Density0) * particle.GasConstant));
+	int type = Type[i];
+	Pressure[i] = (Density[i] - Density0[type]) * GasConstant[type]);
 }

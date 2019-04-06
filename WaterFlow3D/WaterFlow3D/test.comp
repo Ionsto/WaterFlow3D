@@ -1,0 +1,121 @@
+#version 430
+#define WORK_GROUP_SIZE 128
+#define dt 0.1
+const float SmoothingParam = 1.06;
+layout( location=0 ) uniform int ParticleCount;       
+layout (local_size_x = WORK_GROUP_SIZE) in;
+layout(std430, binding = 0) buffer position_block
+{
+	vec3 Position[];
+};
+layout(std430, binding = 1) buffer position_old_block
+{
+	vec3 PositionOld[];
+};;
+layout(std430, binding = 2) buffer force_block 
+{
+	vec3 Force[];
+};
+layout(std430,binding = 3) buffer pressure_block
+{
+	float Pressure[];
+};
+layout(std430,binding = 4) buffer density_block
+{
+	float Density[];
+};
+float Poly6(float r)
+{
+	return 315.0 * pow((SmoothingParam * SmoothingParam) - (r * r), 3.0) / (64.0 * 3.14 * pow(SmoothingParam, 9.0));
+}
+float SpikyGrad(float r)
+{
+	return  -45.f / (3.14 * pow(SmoothingParam, 6.0)) * pow(SmoothingParam - r, 2.0);
+}
+void ApplyBoundaryAxis(inout vec3 pos,inout vec3 oldpos,float lim){
+	const float Restitution = 1;
+	const float BoundaryFriction = 0.1;
+	vec3 delta = pos - oldpos;
+	oldpos.x = lim;
+	pos.x = lim-delta.x*Restitution;
+	pos.yz -= delta.yz * BoundaryFriction;
+}
+void ApplyBoundaryCondition(uint i){
+	const vec3 limit = vec3(100,100,1);
+	if(Position[i].x < 0){
+		ApplyBoundaryAxis(Position[i],PositionOld[i],0);
+	}
+	if(Position[i].y < 0){
+		ApplyBoundaryAxis(Position[i].yxz,PositionOld[i].yxz,0);
+	}
+	if(Position[i].z < 0){
+		ApplyBoundaryAxis(Position[i].zxy,PositionOld[i].zxy,0);
+	}
+	if(Position[i].x > limit.x){
+		ApplyBoundaryAxis(Position[i],PositionOld[i],limit.x);
+	}
+	if(Position[i].y > limit.y){
+		ApplyBoundaryAxis(Position[i].yxz,PositionOld[i].yxz,limit.y);
+	}
+	if(Position[i].z > limit.z){
+		ApplyBoundaryAxis(Position[i].zxy,PositionOld[i].zxy,limit.z);
+	}
+
+
+}
+float Density0(uint i)
+{
+	return 200.0;
+}
+float GasConstant(uint i)
+{
+	return 500.0;
+}
+float Mass(uint i)
+{
+	return 100.0;
+}
+void UpdateDensity(uint i)
+{
+	Density[i] = 0;
+	for(int j = 0;j < ParticleCount;++j)
+	{
+		float distance = length(Position[i] - Position[j]);
+		if(distance < SmoothingParam){
+			Density[i] += Poly6(distance) * Mass(j);
+		}
+	}
+	Pressure[i] = (Density[i] - Density0(i)) * GasConstant(i);
+}
+void UpdateForces(uint i){
+	for(int j = 0;j < ParticleCount;++j)
+	{
+		vec3 difference = Position[i] - Position[j];
+		float distance = length(difference);
+		if (distance != 0 && distance < SmoothingParam && Density[j] != 0 && Density[i] != 0)
+		{	
+			float PressureForce = ((Pressure[i] + Pressure[j])) * SpikyGrad(distance);
+			difference = difference / distance;
+			Force[i] -= difference * (PressureForce * Mass(j) / (2.0*Density[j]));
+			Force[j] += difference * (PressureForce * Mass(i) / (2.0*Density[i]));
+		}
+	}
+}
+void UpdateFriction(uint i){
+}
+void Intergrate(uint i){
+	vec3 Acceleration = vec3(0,-9.81,0);
+	Acceleration += Force[i]/Mass(i);
+	vec3 oldpos = Position[i];
+	Position[i] += ((Position[i] - PositionOld[i]) * 0.9) + (0.5 * dt * dt * Acceleration);
+	PositionOld[i] = oldpos;
+}
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+	//UpdateDensity(i);
+	//UpdateForces(i);
+	//UpdateFriction(i);
+	Intergrate(i);
+	ApplyBoundaryCondition(i);
+}

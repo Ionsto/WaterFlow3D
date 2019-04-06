@@ -45,7 +45,11 @@ void TestGameSystem()
 	GameManager gm;
 	gm.Run();
 }
+void TestGPUSystem()
+{
+}
 int main(int argc, char **args) {
 //	TestWaterSim();
 	TestGameSystem();
+	//TestGPU();
 }

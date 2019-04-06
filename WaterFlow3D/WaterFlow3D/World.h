@@ -1,5 +1,6 @@
 #pragma once
 #include "WaterEngineParticle.h"
+#include "WaterEngineGPU.h"
 class World
 {
 private:
@@ -8,7 +9,8 @@ public:
 	double DeltaTime = 1.0f / 200.0f;
 	int t = 0;
 	double dtacc = 0;
-	WaterEngineParticle waterengine;
+	//WaterEngineParticle waterengine;
+	WaterEngineGPU waterengine;
 	World();
 	~World();
 	void Update(float dt);
