@@ -14,6 +14,8 @@ void main() {
 		colour = vec4(0,0,1,1);
 	}*/
 	colour = vec4(type,1,1,1);
-	vec3 size = vec3(100,100,1);
+	vec3 size = vec3(100,100,100);
 	gl_Position = vec4(((position/size) * 2.0) - 1,1); 
+	const float max_size = 10;
+	gl_PointSize = max_size * -gl_Position.z;//max(1,int(max_size / max(position.z,1)));
 }

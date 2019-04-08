@@ -1,0 +1,73 @@
+#version 430
+const float dt = 0.01;
+const float TableMass[2] = float[](500,900);
+const float TableViscosity[] = float[](1,600);
+const float SmoothingParam = 5.05;
+const float SmoothingParamViscosity = 2;
+layout( location=0 ) uniform int ParticleCount;       
+layout (local_size_x = 128) in;
+layout(std430, binding = 0) buffer position_block
+{
+	vec3 Position[];
+};
+layout(std430, binding = 1) buffer force_block
+{
+	vec3 Force[];
+};
+layout(std430, binding = 2) buffer density_block 
+{
+	float Density[];
+};
+layout(std430, binding = 3) buffer pressure_block 
+{
+	float Pressure[];
+};
+layout(std430, binding = 4) buffer type_block 
+{
+	int Type[];
+};
+layout(std430, binding = 5) buffer position_old_block
+{
+	vec3 PositionOld[];
+};
+float SpikyGrad(float r)
+{
+	return  -45.f / (3.14 * pow(SmoothingParam, 6.0)) * pow(SmoothingParam - r, 2.0);
+}
+float LaplaceVisc(float r)
+{
+	return 45.f / (3.14 * pow(SmoothingParamViscosity, 6.0)) * (SmoothingParamViscosity - r);
+}
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+	vec3 force = vec3(0,0,0);
+	float pressure = Pressure[i];
+	float density = Density[i];
+	vec3 pos = Position[i];
+	vec3 velocity = (Position[i] - PositionOld[i])/dt;
+	for(int j = 0;j < ParticleCount;++j)
+	{
+		if(i != j)
+		{
+			vec3 difference = pos - Position[j];
+			float distance = length(difference);
+			float dj = Density[j];
+			if (distance != 0 && distance < SmoothingParam && dj != 0)
+			{	
+				float PressureForce = ((pressure + Pressure[j])) * SpikyGrad(distance);
+				difference = difference / distance;
+				force -= difference * (PressureForce * TableMass[Type[j]] / (dj));
+				//Force[j] += difference * (PressureForce * TableMass[Type[i]] / (2.0*Density[i]));
+				vec3 jvelocity = (Position[j] - PositionOld[j])/dt;
+				float LaplaceFactor = LaplaceVisc(distance);
+				vec3 dv = (jvelocity - velocity);
+				float InteractionViscosity = TableViscosity[Type[i]] * TableViscosity[Type[j]];
+				float ViscFactor =  (LaplaceFactor * InteractionViscosity * TableMass[Type[j]] / Density[j]);
+				vec3 TanVec = dv - (difference * (dot(difference,dv)));
+				force += TanVec * ViscFactor;
+			}
+		}
+	}	
+	Force[i] = force;
+}

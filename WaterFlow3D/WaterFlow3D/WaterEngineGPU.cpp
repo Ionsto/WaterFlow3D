@@ -1,6 +1,6 @@
 #include "WaterEngineGPU.h"
 #include <iostream>
-
+#include <chrono>
 
 
 WaterEngineGPU::WaterEngineGPU()
@@ -14,13 +14,46 @@ void WaterEngineGPU::Init(GLFWwindow * handle)
 	TestProgram.AddShader(ComputeTest);
 	TestProgram.LinkProgram();
 	TestProgram.UseProgram();
+	Compute_Intergrate.Init("sim_intergrate.comp",GL_COMPUTE_SHADER);
+	Program_Intergrate.CreateProgram();
+	Program_Intergrate.AddShader(Compute_Intergrate);
+	Program_Intergrate.LinkProgram();
+	Compute_Density.Init("sim_density.comp",GL_COMPUTE_SHADER);
+	Program_Density.CreateProgram();
+	Program_Density.AddShader(Compute_Density);
+	Program_Density.LinkProgram();
+	Compute_Force.Init("sim_force.comp",GL_COMPUTE_SHADER);
+	Program_Force.CreateProgram();
+	Program_Force.AddShader(Compute_Force);
+	Program_Force.LinkProgram();
+	Compute_Flow.Init("sim_flow.comp", GL_COMPUTE_SHADER);
+	Program_Flow.CreateProgram();
+	Program_Flow.AddShader(Compute_Flow);
+	Program_Flow.LinkProgram();
 	glGenBuffers(1, &PositionBuffer);
 	glGenBuffers(1, &PositionOldBuffer);
 	glGenBuffers(1, &ForceBuffer);
 	glGenBuffers(1, &PressureBuffer);
 	glGenBuffers(1, &DensityBuffer);
 	glGenBuffers(1, &TypeBuffer);
-	ParticleCount = 0;
+
+	for (int i = 0; i < 0000; ++i) {
+		ParticleGPU p;
+		p.Position = Vector(rand() % 10000, rand() % 10000, 0) / 110 + Vector(10,10,1);
+		p.PositionOld = p.Position;
+		p.Type = 1;
+		ParticleList.AddParticle(p);
+	}
+	ParticleCount = ParticleList.ParticleCount;
+	for (int i = 0, inc = 0; i < ParticleCount; ++i) {
+			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.X;
+			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.X;
+			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.Y;
+			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.Y;
+			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.Z;
+			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.Z;
+			GPUBufferType[i] = ParticleList.GetParticle(i).Type;
+	}
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount * 3, GPUBufferPosition.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionOldBuffer);
@@ -31,8 +64,8 @@ void WaterEngineGPU::Init(GLFWwindow * handle)
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount, GPUBufferPressure.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ForceBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 3 * MaxParticleCount, GPUBufferForce.data(), GL_DYNAMIC_STORAGE_BIT);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 3 * MaxParticleCount, GPUBufferForce.data(), GL_DYNAMIC_STORAGE_BIT);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, TypeBuffer);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(int) * MaxParticleCount, GPUBufferType.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
 }
 
@@ -43,7 +76,20 @@ WaterEngineGPU::~WaterEngineGPU()
 
 void WaterEngineGPU::Update()
 {
-	ParticleCount = ParticleList.ParticleCount;
+	//ParticleCount = 10000;
+	//ParticleCount = ParticleList.ParticleCount;
+	if(ParticleCount < MaxParticleCount && FlowCount++ > 10)
+		{
+			Program_Flow.UseProgram();
+			glUniform1i(0, ParticleCount);
+			glUniform1i(1, ParticleCount);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, TypeBuffer);
+			glDispatchCompute(1, (GLuint)1, 1);
+			FlowCount = 0;
+			ParticleCount++;
+		}
 	if (ParticleCount > 0)
 	{
 		//std::cout << "Particle Count:" << ParticleCount << "\n";
@@ -71,16 +117,45 @@ void WaterEngineGPU::Update()
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, DensityBuffer);
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * ParticleCount, GPUBufferDensity.data());
 		*/
-		{  
-			TestProgram.UseProgram();
+
+		auto start = std::chrono::high_resolution_clock::now();
+
+
+		{
+			Program_Density.UseProgram();
+			glUniform1i(0, ParticleCount);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, PressureBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DensityBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, TypeBuffer);
+			glDispatchCompute((ParticleCount+127)/128, (GLuint)1, 1);
+		}
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		{
+			Program_Force.UseProgram();
+			glUniform1i(0, ParticleCount);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ForceBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, DensityBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, PressureBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, TypeBuffer);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, PositionOldBuffer);
+			glDispatchCompute((ParticleCount+127)/128, (GLuint)1, 1);
+		}
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		{
+			Program_Intergrate.UseProgram();
 			glUniform1i(0, ParticleCount);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ForceBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, PressureBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, DensityBuffer);
-			glDispatchCompute(ParticleCount, (GLuint)1, 1);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, TypeBuffer);
+			glDispatchCompute((ParticleCount + 1023)/1024, (GLuint)1, 1);
 		}
+		auto end = std::chrono::high_resolution_clock::now();
+		auto dt = end - start;
+		//std::cout << "sim time:" << (dt.count() / (1000000.0)) << "\n";
 	/*
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionBuffer);
@@ -119,5 +194,6 @@ void WaterEngineGPU::AddParticle(Particle p)
 	ParticleGPU pGPU;
 	pGPU.Position = p.Position;
 	pGPU.PositionOld = p.PositionOld;
+	pGPU.Type = p.Type;
 	ParticleList.AddParticle(pGPU);
 }

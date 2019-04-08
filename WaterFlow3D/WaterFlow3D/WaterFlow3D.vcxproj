@@ -163,10 +163,14 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="density.comp" />
+    <None Include="sim_density.comp" />
     <None Include="plot.py" />
     <None Include="points.frag" />
     <None Include="points.vert" />
+    <None Include="sim_force.comp" />
+    <None Include="sim_grid.comp" />
+    <None Include="sim_flow.comp" />
+    <None Include="sim_intergrate.comp" />
     <None Include="test.comp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

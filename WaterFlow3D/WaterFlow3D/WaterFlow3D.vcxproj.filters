@@ -48,9 +48,6 @@
     <ClCompile Include="ParticleTree.cpp">
       <Filter>Source Files\GamePlay\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Vector.cpp">
-      <Filter>Source Files\GamePlay\Particle</Filter>
-    </ClCompile>
     <ClCompile Include="RenderEngine.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
@@ -62,6 +59,12 @@
     </ClCompile>
     <ClCompile Include="World.cpp">
       <Filter>Source Files\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderEngineGPU.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterEngineGPU.cpp">
+      <Filter>Source Files\GamePlay\Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -89,19 +92,40 @@
     <ClInclude Include="World.h">
       <Filter>Header Files\GamePlay</Filter>
     </ClInclude>
+    <ClInclude Include="RenderEngineGPU.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterEngineGPU.h">
+      <Filter>Header Files\GamePlay\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files\GamePlay\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="plot.py" />
-    <None Include="animated.py" />
-    <None Include="process3d.py" />
-    <None Include="process.py" />
     <None Include="points.vert">
       <Filter>Shaders</Filter>
     </None>
     <None Include="points.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="density.comp">
+    <None Include="sim_grid.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="sim_force.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="sim_density.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="sim_intergrate.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="test.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="sim_flow.comp">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -6,7 +6,7 @@ class World
 private:
 	int WaterUpdateTicker = 0;
 public:
-	double DeltaTime = 1.0f / 200.0f;
+	double DeltaTime = 0.01f/2;
 	int t = 0;
 	double dtacc = 0;
 	//WaterEngineParticle waterengine;

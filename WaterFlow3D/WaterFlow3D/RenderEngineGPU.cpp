@@ -52,6 +52,7 @@ RenderEngineGPU::RenderEngineGPU(GLFWwindow * handle,World & world)
 	glDebugMessageControl(GL_DONT_CARE,GL_DONT_CARE,GL_DEBUG_SEVERITY_MEDIUM,0,0,false);
 	glDebugMessageControl(GL_DONT_CARE,GL_DONT_CARE,GL_DEBUG_SEVERITY_LOW,0,0,false);
 	glDebugMessageControl(GL_DONT_CARE,GL_DONT_CARE,GL_DEBUG_SEVERITY_NOTIFICATION,0,0,false);
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 
@@ -70,7 +71,7 @@ void RenderEngineGPU::Render(World & world)
 	//glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 	
-	glDrawArrays(GL_POINTS, 0, world.waterengine.ParticleCount);
+	glDrawArrays(GL_POINTS, 0, world.waterengine.MaxParticleCount);
 	glBindVertexArray(0);
 	/*glBindBuffer(GL_ARRAY_BUFFER, TypeBuffers[CurrentBuffer]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * TypeData.size(), &TypeData.front(), GL_STREAM_DRAW);

@@ -1,6 +1,7 @@
 #pragma once
 #include "Vector.h"
 struct Particle {
+	int Type = 0;
 	bool Sand = true;
 	Vector Position;
 	Vector PositionOld;
@@ -24,5 +25,5 @@ struct ParticleGPU {
 	Vector Force;
 	float Pressure;
 	float Density;
-	//int Type;
+	int Type;
 };

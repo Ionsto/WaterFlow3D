@@ -1,0 +1,64 @@
+#version 430
+const float dt = 0.01;
+const float TableMass[] = float[](500,900);
+const float Restitution = 0.5;
+const float BoundaryFriction = 0.01;
+layout( location=0 ) uniform int ParticleCount;       
+layout (local_size_x = 1024) in;
+layout(std430, binding = 0) buffer position_block
+{
+	vec3 Position[];
+};
+layout(std430, binding = 1) buffer position_old_block
+{
+	vec3 PositionOld[];
+};
+layout(std430, binding = 2) buffer force_block 
+{
+	vec3 Force[];
+};
+layout(std430,binding = 3) buffer type_block
+{
+	int Type[];
+};
+void ApplyBoundaryAxis(inout vec3 pos,inout vec3 oldpos,float lim){
+	vec3 delta = pos - oldpos;
+	oldpos.x = lim;
+	pos.x = lim-delta.x*Restitution;
+	pos.y -= delta.y * BoundaryFriction;
+	pos.z -= delta.z * BoundaryFriction;
+}
+void ApplyBoundaryCondition(uint i){
+	const vec3 limit = vec3(100,100,100);
+	if(Position[i].x < 0){
+		ApplyBoundaryAxis(Position[i],PositionOld[i],0);
+	}
+	if(Position[i].y < 0){
+		ApplyBoundaryAxis(Position[i].yxz,PositionOld[i].yxz,0);
+	}
+	if(Position[i].z < 0){
+		ApplyBoundaryAxis(Position[i].zxy,PositionOld[i].zxy,0);
+	}
+	if(Position[i].x > limit.x){
+		ApplyBoundaryAxis(Position[i],PositionOld[i],limit.x);
+	}
+	if(Position[i].y > limit.y){
+		ApplyBoundaryAxis(Position[i].yxz,PositionOld[i].yxz,limit.y);
+	}
+	if(Position[i].z > limit.z){
+		ApplyBoundaryAxis(Position[i].zxy,PositionOld[i].zxy,limit.z);
+	}
+}
+void Intergrate(uint i){
+	vec3 Acceleration = Force[i]/TableMass[Type[i]];
+	Acceleration += vec3(0,-9.8,0);
+	vec3 oldpos = Position[i];
+	Position[i] += ((Position[i] - PositionOld[i]) * 0.999) + (dt * dt * Acceleration);
+	PositionOld[i] = oldpos;
+}
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+	Intergrate(i);
+	ApplyBoundaryCondition(i);
+}

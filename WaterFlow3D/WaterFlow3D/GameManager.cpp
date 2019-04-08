@@ -41,7 +41,7 @@ GameManager::GameManager()
 	world = std::make_unique<World>();
 	std::cout << "Init GPU sys" << std::endl;
 	world->waterengine.Init(Window_Handle);
-	world->AddWater(Vector(100,100));
+	//world->AddWater(Vector(100,100));
 	std::cout << "Init render engine" << std::endl;
 	renderengine = std::make_unique<RenderEngineGPU>(Window_Handle,*world.get());
 	int width, height;
@@ -71,7 +71,8 @@ void GameManager::Run()
 			auto now = std::chrono::high_resolution_clock::now();
 			auto dt = now - StartTime;
 			StartTime = now;
-			//std::cout << "Frametime:" << (dt.count() / (100.0 * 1000000000)) << "\n fps:" << ((100.0*1000000000) / dt.count()) << "\n";
+			std::cout << "Frametime:" << (dt.count() / (100.0 * 1000000000)) << "\n fps:" << ((100.0*1000000000) / dt.count()) << "\n";
+			std::cout << "Particle count:" << world->waterengine.ParticleCount << "\n";
 			FrameCount = 0;
 		}
 		auto end = std::chrono::high_resolution_clock::now();

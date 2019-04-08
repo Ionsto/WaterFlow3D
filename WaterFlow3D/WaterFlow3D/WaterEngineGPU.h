@@ -52,26 +52,35 @@ public:
 class WaterEngineGPU
 {
 public:
-	static const constexpr double DeltaTime = 0.005;
+	static const constexpr double DeltaTime = 0.100;
 	static const constexpr float TotalWidth = 100;
 	static const constexpr float TotalHeight = 100;
+	int FlowCount = 0;
 	GLFWwindow* Window_Handle;
 	Shader ComputeTest;
+	Shader Compute_Density;
+	Shader Compute_Force;
+	Shader Compute_Intergrate;
+	Shader Compute_Flow;
 	ShaderProgram TestProgram;
+	ShaderProgram Program_Density;
+	ShaderProgram Program_Force;
+	ShaderProgram Program_Intergrate;
+	ShaderProgram Program_Flow;
 	GLuint PositionBuffer;
 	GLuint PositionOldBuffer;
 	GLuint DensityBuffer;
 	GLuint PressureBuffer;
 	GLuint ForceBuffer;
 	GLuint TypeBuffer;
-	static constexpr const int MaxParticleCount = 1000;
+	static constexpr const int MaxParticleCount = 10000;
 	int ParticleCount = 0;
 	SwapList<ParticleGPU, MaxParticleCount> ParticleList;
 	std::array<float, MaxParticleCount * 3> GPUBufferPosition;
 	std::array<float, MaxParticleCount * 3> GPUBufferPositionOld;
 	std::array<float, MaxParticleCount> GPUBufferDensity;
 	std::array<float, MaxParticleCount> GPUBufferPressure;
-	std::array<float, MaxParticleCount * 3> GPUBufferForce;
+	std::array<float, MaxParticleCount * 3> GPUBufferForce = {0};
 	std::array<int, MaxParticleCount> GPUBufferType;
 //	std::array<ParticleGPU,MaxParticleCount> ParticleList;
 	WaterEngineGPU();
