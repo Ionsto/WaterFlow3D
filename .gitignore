@@ -168,3 +168,7 @@ WaterFlow3D/x64/Release/WaterFlow3D.exe
 WaterFlow3D/x64/Release/WaterFlow3D.iobj
 WaterFlow3D/x64/Release/WaterFlow3D.ipdb
 WaterFlow3D/x64/Release/WaterFlow3D.pdb
+*.tlog
+*.obj
+*.obj
+*.ipch

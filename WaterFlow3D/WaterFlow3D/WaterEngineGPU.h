@@ -7,6 +7,9 @@
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "Particle.h"
+struct GPUScene {
+	int ParticleCount = 0;
+};
 template
 <class t, int max>
 class SwapList {
@@ -73,14 +76,16 @@ public:
 	GLuint PressureBuffer;
 	GLuint ForceBuffer;
 	GLuint TypeBuffer;
+	GLuint SceneBuffer;
 	static constexpr const int MaxParticleCount = 10000;
 	int ParticleCount = 0;
+	GPUScene GPUscene;
 	SwapList<ParticleGPU, MaxParticleCount> ParticleList;
-	std::array<float, MaxParticleCount * 3> GPUBufferPosition;
-	std::array<float, MaxParticleCount * 3> GPUBufferPositionOld;
+	std::array<float, MaxParticleCount * 4> GPUBufferPosition = { 10 };
+	std::array<float, MaxParticleCount * 4> GPUBufferPositionOld = { 10 };
 	std::array<float, MaxParticleCount> GPUBufferDensity;
 	std::array<float, MaxParticleCount> GPUBufferPressure;
-	std::array<float, MaxParticleCount * 3> GPUBufferForce = {0};
+	std::array<float, MaxParticleCount * 4> GPUBufferForce = {0};
 	std::array<int, MaxParticleCount> GPUBufferType;
 //	std::array<ParticleGPU,MaxParticleCount> ParticleList;
 	WaterEngineGPU();

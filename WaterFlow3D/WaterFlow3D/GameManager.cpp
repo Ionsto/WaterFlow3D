@@ -83,8 +83,12 @@ void GameManager::Run()
 
 void GameManager::Render()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderengine->Render(*world.get());
+	renderengine->RotateCounter += renderengine->DRotate * DeltaTime;
+	if (renderengine->RotateCounter > 360) {
+		renderengine->RotateCounter -= 360;
+	}
 	//world->waterengine.Render();
 }
 void GameManager::PollInput()

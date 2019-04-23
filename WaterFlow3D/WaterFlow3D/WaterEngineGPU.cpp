@@ -36,15 +36,17 @@ void WaterEngineGPU::Init(GLFWwindow * handle)
 	glGenBuffers(1, &PressureBuffer);
 	glGenBuffers(1, &DensityBuffer);
 	glGenBuffers(1, &TypeBuffer);
+	glGenBuffers(1, &SceneBuffer);
 
-	for (int i = 0; i < 0000; ++i) {
+	for (int i = 0; i < 1000; ++i) {
 		ParticleGPU p;
-		p.Position = Vector(rand() % 10000, rand() % 10000, 0) / 110 + Vector(10,10,1);
+		p.Position = Vector(rand() % 5000,rand() % 5000,rand() % 5000) / 50;
 		p.PositionOld = p.Position;
 		p.Type = 1;
 		ParticleList.AddParticle(p);
 	}
 	ParticleCount = ParticleList.ParticleCount;
+	GPUscene.ParticleCount = ParticleCount;
 	for (int i = 0, inc = 0; i < ParticleCount; ++i) {
 			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.X;
 			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.X;
@@ -55,18 +57,22 @@ void WaterEngineGPU::Init(GLFWwindow * handle)
 			GPUBufferType[i] = ParticleList.GetParticle(i).Type;
 	}
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionBuffer);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount * 3, GPUBufferPosition.data(), GL_DYNAMIC_STORAGE_BIT);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount * 4, GPUBufferPosition.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionOldBuffer);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount * 3, GPUBufferPositionOld.data() , GL_DYNAMIC_STORAGE_BIT);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount * 4, GPUBufferPositionOld.data() , GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, DensityBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount, GPUBufferDensity.data() , GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PressureBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * MaxParticleCount, GPUBufferPressure.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ForceBuffer);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 3 * MaxParticleCount, GPUBufferForce.data(), GL_DYNAMIC_STORAGE_BIT);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(float) *  MaxParticleCount * 4, GPUBufferForce.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, TypeBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(int) * MaxParticleCount, GPUBufferType.data(), GL_DYNAMIC_STORAGE_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SceneBuffer);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(GPUScene),&GPUscene, GL_DYNAMIC_STORAGE_BIT);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+	FlowCount = -1000;
 }
 
 
@@ -76,112 +82,67 @@ WaterEngineGPU::~WaterEngineGPU()
 
 void WaterEngineGPU::Update()
 {
-	//ParticleCount = 10000;
-	//ParticleCount = ParticleList.ParticleCount;
-	if(ParticleCount < MaxParticleCount && FlowCount++ > 10)
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ForceBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DensityBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, PressureBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, TypeBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, SceneBuffer);
+	GPUscene.ParticleCount = ParticleCount;
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SceneBuffer);
+	glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(GPUScene), &GPUscene);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	if(FlowCount++ > 10)
 		{
 			Program_Flow.UseProgram();
-			glUniform1i(0, ParticleCount);
-			glUniform1i(1, ParticleCount);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, TypeBuffer);
 			glDispatchCompute(1, (GLuint)1, 1);
 			FlowCount = 0;
-			ParticleCount++;
+			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SceneBuffer);
+	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(GPUScene), &GPUscene);
+	ParticleCount = GPUscene.ParticleCount;
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	if (ParticleCount > 0)
 	{
-		//std::cout << "Particle Count:" << ParticleCount << "\n";
-		/*for (int i = 0, inc = 0; i < ParticleCount; ++i) {
-			GPUBufferDensity[i] = ParticleList.GetParticle(i).Density;
-			GPUBufferPressure[i] = ParticleList.GetParticle(i).Pressure;
-			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.X;
-			GPUBufferForce[inc] = ParticleList.GetParticle(i).Force.X;
-			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.X;
-			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.Y;
-			GPUBufferForce[inc] = ParticleList.GetParticle(i).Force.Y;
-			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.Y;
-			GPUBufferPosition[inc] = ParticleList.GetParticle(i).Position.Z;
-			GPUBufferForce[inc] = ParticleList.GetParticle(i).Force.Z;
-			GPUBufferPositionOld[inc++] = ParticleList.GetParticle(i).PositionOld.Z;
-		}
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionBuffer);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * 3 * ParticleCount, GPUBufferPosition.data());
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionOldBuffer);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * 3 * ParticleCount, GPUBufferPositionOld.data());
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ForceBuffer);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * 3 * ParticleCount, GPUBufferForce.data());
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, PressureBuffer);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * ParticleCount, GPUBufferPressure.data());
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, DensityBuffer);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * ParticleCount, GPUBufferDensity.data());
-		*/
-
 		auto start = std::chrono::high_resolution_clock::now();
-
-
 		{
 			Program_Density.UseProgram();
 			glUniform1i(0, ParticleCount);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, PressureBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DensityBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, TypeBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, PressureBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DensityBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, TypeBuffer);
 			glDispatchCompute((ParticleCount+127)/128, (GLuint)1, 1);
-		}
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		}
 		{
 			Program_Force.UseProgram();
 			glUniform1i(0, ParticleCount);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ForceBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, DensityBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, PressureBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, TypeBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, PositionOldBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ForceBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DensityBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, PressureBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, TypeBuffer);
 			glDispatchCompute((ParticleCount+127)/128, (GLuint)1, 1);
 		}
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		{
 			Program_Intergrate.UseProgram();
 			glUniform1i(0, ParticleCount);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ForceBuffer);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, TypeBuffer);
-			glDispatchCompute((ParticleCount + 1023)/1024, (GLuint)1, 1);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PositionBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PositionOldBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ForceBuffer);
+			//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, TypeBuffer);
+			glDispatchCompute((ParticleCount + 127)/128, (GLuint)1, 1);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 		auto end = std::chrono::high_resolution_clock::now();
 		auto dt = end - start;
 		//std::cout << "sim time:" << (dt.count() / (1000000.0)) << "\n";
-	/*
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionBuffer);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, ParticleCount * 3 * sizeof(float), GPUBufferPosition.data());
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PositionOldBuffer);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, ParticleCount * 3 * sizeof(float), GPUBufferPositionOld.data());
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ForceBuffer);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, ParticleCount * 3 * sizeof(float), GPUBufferForce.data());
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, DensityBuffer);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, ParticleCount * sizeof(float), GPUBufferDensity.data());
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, PressureBuffer);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, ParticleCount * sizeof(float), GPUBufferPressure.data());
-	for (int i = 0, inc = 0; i < ParticleCount; ++i) {
-		ParticleList.GetParticle(i).Density = GPUBufferDensity[i];
-		ParticleList.GetParticle(i).Pressure = GPUBufferPressure[i];
-		ParticleList.GetParticle(i).PositionOld.X = GPUBufferPositionOld[inc];
-		ParticleList.GetParticle(i).Force.X = GPUBufferForce[inc];
-		ParticleList.GetParticle(i).Position.X = GPUBufferPosition[inc++];
-		ParticleList.GetParticle(i).PositionOld.Y = GPUBufferPositionOld[inc];
-		ParticleList.GetParticle(i).Force.Y = GPUBufferForce[inc];
-		ParticleList.GetParticle(i).Position.Y = GPUBufferPosition[inc++];
-		ParticleList.GetParticle(i).PositionOld.Z = GPUBufferPositionOld[inc];
-		ParticleList.GetParticle(i).Force.Z = GPUBufferForce[inc];
-		ParticleList.GetParticle(i).Position.Z = GPUBufferPosition[inc++];
-	}
-	*/
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER,0 );
 	}
 }

@@ -1,9 +1,10 @@
 #version 430
-const float dt = 0.1;
-
-layout( location=0 ) uniform int ParticleCount;       
-layout( location=1 ) uniform int Time;       
-layout (local_size_x = 1) in;
+const float dt = 0.016;
+const int MaxParticleCount = 10000;
+layout(local_size_x = 1) in;
+struct GPUScene{
+	int ParticleCount;
+};
 layout(std430, binding = 0) buffer position_block
 {
 	vec3 Position[];
@@ -12,14 +13,59 @@ layout(std430, binding = 1) buffer position_old_block
 {
 	vec3 PositionOld[];
 };
-layout(std430,binding = 2) buffer type_block
+layout(std430, binding = 2) buffer force_block
+{
+	vec3 Force[];
+};
+layout(std430, binding = 3) buffer density_block 
+{
+	float Density[];
+};
+layout(std430, binding = 4) buffer pressure_block 
+{
+	float Pressure[];
+};
+layout(std430,binding = 5) buffer type_block
 {
 	int Type[];
 };
+layout(std430,binding = 6) buffer scene_block
+{
+	GPUScene scene;	
+};
+void InFlow(inout int particlecount){
+	for(int u = 0; u < 10;++u)
+	{
+		if(particlecount < MaxParticleCount){
+			Position[particlecount] = vec3(20 + 2*mod(particlecount  + 11 , 5),40,20 + 2*mod(particlecount + 79, 7));
+			PositionOld[particlecount] = Position[particlecount] + vec3(0,0.5,0);
+			Type[particlecount] = 0;
+			particlecount++;
+		}
+	}
+}
+void OutFlow(inout int particlecount){
+	for(int i = 0; i < particlecount;++i)
+	{
+		if(Position[i].x > 80 && Position[i].z > 80 && Type[i] == 0)
+		{
+			particlecount--;
+			if(i != particlecount){
+				Position[i] = Position[particlecount];
+				PositionOld[i] = PositionOld[particlecount];
+				//Force[i] = Force[particlecount];
+				//Density[i] = Density[particlecount];
+				//Pressure[i] = Pressure[particlecount];
+				Type[i] = Type[particlecount];
+			}
+		}
+	}
+}
 void main()
 {
 	uint i = gl_GlobalInvocationID.x;
-	Position[ParticleCount] = vec3(10 + (Time %6),40,1 + (Time % 4));
-	PositionOld[ParticleCount] = Position[ParticleCount];
-	Type[ParticleCount] = 0;
+	int particlecount = scene.ParticleCount;
+	OutFlow(particlecount);
+	InFlow(particlecount);
+	scene.ParticleCount = particlecount;
 }

@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "WaterEngineGPU.h"
 #include "ShaderProgram.h"
+#include <glm/mat4x4.hpp>
 class RenderEngineGPU
 {
 private:
@@ -24,9 +25,12 @@ private:
 	GLuint TypeBuffers[2];
 	static const constexpr int MaxRenderParticles = 10000;
 public:
+	float RotateCounter = 0;
+	float DRotate = 10;
 	WaterEngineGPU * engine;
 	RenderEngineGPU(GLFWwindow * handle,World & world);
 	virtual ~RenderEngineGPU();
 	void Render(World & world);
+	glm::mat4 MVPCalc();
 };
 

@@ -1,8 +1,8 @@
 #version 430
-const float SmoothingParam = 10.05;
-const float TableMass[2] = float[](500,900);
-const float TableDensity0[] = float[](5,1000);
-const float TableGasConstant[] = float[](500,800);
+const float SmoothingParam = 8.0;
+const float TableMass[2] = float[](20,40);
+const float TableDensity0[] = float[](0.6,0.2);
+const float TableGasConstant[] = float[](100000,100000);
 
 layout( location=0 ) uniform int ParticleCount;       
 layout (local_size_x = 128) in;
@@ -14,15 +14,15 @@ layout(std430, binding = 1) buffer position_old_block
 {
 	vec3 PositionOld[];
 };
-layout(std430,binding = 2) buffer pressure_block
-{
-	float Pressure[];
-};
 layout(std430,binding = 3) buffer density_block
 {
 	float Density[];
 };
-layout(std430,binding = 4) buffer type_block
+layout(std430,binding = 4) buffer pressure_block
+{
+	float Pressure[];
+};
+layout(std430,binding = 5) buffer type_block
 {
 	int Type[];
 };
@@ -45,5 +45,7 @@ void main()
 	}
 	Density[i] = density;
 	int type = Type[i];
-	Pressure[i] = (density - TableDensity0[type]) * TableGasConstant[type];
+	//if(type == 0 || type == 1){
+	Pressure[i] = max(0,(density - TableDensity0[type]) *  TableGasConstant[type]);
+	//Pressure[i] = (density - TableDensity0[type]) * TableGasConstant[type];
 }
