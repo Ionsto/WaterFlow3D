@@ -94,5 +94,8 @@
     <None Include="quad.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="points.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

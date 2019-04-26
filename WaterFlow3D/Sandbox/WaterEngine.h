@@ -13,9 +13,16 @@ public:
 	VoxelGrid grid;
 	WaterEngine();
 	~WaterEngine();
-	void PopulateNode(Vector Node, Particle particle);
+	void PopulateNode(Vector NodePos,Particle particle);
 	void PopulateGrid();
+	void UpdateParticlesNode(Vector NodePos,Particle & particle);
+	void UpdateParticles();
+	void ResetGrid();
+	void ApplyForces();
+	void ApplyBoundary();
 	void Intergrate();
+	void IntergrateGrid();
+	void IntergrateParticles();
 	void Update(float dtreal);
 	void AddWater(Vector pos);
 };

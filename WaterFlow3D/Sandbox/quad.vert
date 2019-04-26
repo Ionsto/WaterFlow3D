@@ -16,5 +16,5 @@ void main() {
 	}
 //	colour = vec4(density,0,0,1);
 	//colour = vec4(0,1,1,1);
-	gl_Position = vec4((position/vec2(50,50)) - vec2(1,1),0,1);
+	gl_Position = vec4(((position)/vec2(50,50)) - vec2(1,1),0,1);
 }

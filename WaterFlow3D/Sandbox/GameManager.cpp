@@ -82,7 +82,7 @@ void GameManager::Run()
 void GameManager::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderengine->Render(waterengine->grid);
+	renderengine->Render(waterengine.get());
 	/*renderengine->RotateCounter += renderengine->DRotate * DeltaTime;
 	if (renderengine->RotateCounter > 360) {
 		renderengine->RotateCounter -= 360;
@@ -117,12 +117,12 @@ void GameManager::PollInput()
 		}
 	}
 	if (glfwGetKey(Window_Handle, GLFW_KEY_1)){
-		renderengine->DebugDisplay = RenderEngine2D::Density;
-		glfwSetWindowTitle(Window_Handle,"Density");
+		renderengine->DebugDisplay = RenderEngine2D::Mass;
+		glfwSetWindowTitle(Window_Handle,"Mass");
 	}
 	if (glfwGetKey(Window_Handle, GLFW_KEY_2)){
-		renderengine->DebugDisplay = RenderEngine2D::Pressure;
-		glfwSetWindowTitle(Window_Handle,"Pressure");
+		renderengine->DebugDisplay = RenderEngine2D::Stress;
+		glfwSetWindowTitle(Window_Handle,"Stress");
 	}
 	if (glfwGetKey(Window_Handle, GLFW_KEY_3)){
 		renderengine->DebugDisplay = RenderEngine2D::Velocity;

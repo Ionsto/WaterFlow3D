@@ -1,4 +1,5 @@
 #include "RenderEngine2D.h"
+#include "WaterEngine.h"
 #include <iostream>
 #include <GL/GL.h>
 void GLAPIENTRY
@@ -37,6 +38,17 @@ RenderEngine2D::RenderEngine2D(GLFWwindow * window)
 	program_grid.UseProgram();
 	glGenBuffers(1, &VertexBuffer);
 	glGenBuffers(1, &DensityBuffer);
+	glGenBuffers(1, &IndexBuffer);
+	vertex_points.Init("points.vert", GL_VERTEX_SHADER);
+	fragment_points.Init("points.frag", GL_FRAGMENT_SHADER);
+	std::cout << "Creating program" << std::endl;
+	program_points.CreateProgram();
+	program_points.AddShader(vertex_points);
+	program_points.AddShader(fragment_points);
+	program_points.LinkProgram();
+	program_points.UseProgram();
+	glGenBuffers(1, &VertexBufferPoints);
+	glGenBuffers(1, &DensityBufferPoints);
 }
 
 
@@ -44,31 +56,51 @@ RenderEngine2D::~RenderEngine2D()
 {
 }
 
-void RenderEngine2D::Render(VoxelGrid& grid)
+void RenderEngine2D::Render(WaterEngine* engine)
 {
-	static constexpr int MaxVerts = grid.SizeX * grid.SizeY * 4;
-	std::array<float,2 * MaxVerts> VertexData;
-	std::array<float,MaxVerts> DensityData;
+	//RenderGrid(engine->grid);
+	RenderParticles(engine->particle_list);
+}
+void RenderEngine2D::RenderParticles(SwapList<Particle, WaterEngine::MaxParticleCount> & list) {
+	for (int i = 0; i < list.ParticleCount; ++i) {
+		ParticleVertexData[i * 2] = list.GetParticle(i).Position.X;
+		ParticleVertexData[i * 2 + 1] = list.GetParticle(i).Position.Y;
+		ParticleDensityData[i] = list.GetParticle(i).StrainRate.DY.Y;
+	}
+	program_points.UseProgram();
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBufferPoints);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * list.ParticleCount, &ParticleVertexData[0], GL_STREAM_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, DensityBufferPoints);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * list.ParticleCount, &ParticleDensityData[0], GL_STREAM_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 1, GL_FLOAT,GL_FALSE, 0, 0);
+	glDrawArrays(GL_POINTS, 0, list.ParticleCount);
+}
+void RenderEngine2D::RenderGrid(VoxelGrid& grid)
+{
 	int itervert = 0;
+	int iterindex = 0;
 	int iter = 0;
-	for (int x = 1; x < grid.SizeX-1; ++x)
+	for (int x = 0; x < grid.SizeX; ++x)
 	{
-		for (int y = 1; y < grid.SizeY-1; ++y)
+		for (int y = 0; y < grid.SizeY; ++y)
 		{
-			if (iter <= MaxVerts)
-			{
 				auto voxel = grid.Get(x, y);
 				float display_value;
 				switch (DebugDisplay)
 				{
-					case Density:
-						display_value = voxel.Mass;
+					case Mass:
+						display_value = ((voxel.Mass)/10.0);
 						break;
-					case Pressure:
+					case Stress:
+						display_value = ((voxel.Force_Internal.X+200)/800.0);
 //						display_value = ((voxel.Pressure+2)/10.0);
 						break;
 					case Velocity:
-						display_value = ((voxel.Velocity.Y+100)/400.0);
+						display_value = ((voxel.Velocity.Y+50)/100.0);
+						display_value = ((voxel.Force_Internal.Y+200)/800.0);
 						break;
 					case Force:
 						display_value = ((voxel.Force.Y+100)/400.0);
@@ -77,32 +109,44 @@ void RenderEngine2D::Render(VoxelGrid& grid)
 				//display_value = voxel.Pressure;
 				//display_value = -(voxel.Force.Y*10.0) + 0.5;
 				//display_value = -voxel.Force.Y + 0.5;
-				DensityData[iter++] = display_value;
-				VertexData[itervert++] = x;
-				VertexData[itervert++] = y;
-				DensityData[iter++] = display_value;
-				VertexData[itervert++] = x;
-				VertexData[itervert++] = y + 1;
-				DensityData[iter++] = display_value;
-				VertexData[itervert++] = x + 1;
-				VertexData[itervert++] = y + 1;
-				DensityData[iter++] = display_value;
-				VertexData[itervert++] = x + 1;
-				VertexData[itervert++] = y;
-			}
+				GridDensityData[iter++] = display_value;
+				GridVertexData[itervert++] = x;
+				GridVertexData[itervert++] = y;
+				if (y + 1 < grid.SizeY && x + 1 < grid.SizeX) {
+					GridIndexData[iterindex++] = (y)+((x)* VoxelGrid::SizeY);
+					GridIndexData[iterindex++] = (y + 1) + ((x)* VoxelGrid::SizeY);
+					GridIndexData[iterindex++] = (y + 1) + ((x + 1) * VoxelGrid::SizeY);
+					GridIndexData[iterindex++] = (y)+((x + 1) * VoxelGrid::SizeY);
+				}
+//				GridDensityData[iter++] = display_value;
+//				GridVertexData[itervert++] = x;
+//				GridVertexData[itervert++] = y + 1;
+//				GridDensityData[iter++] = display_value;
+//				GridVertexData[itervert++] = x + 1;
+//				GridVertexData[itervert++] = y + 1;
+//				GridDensityData[iter++] = display_value;
+//				GridVertexData[itervert++] = x + 1;
+//				GridVertexData[itervert++] = y;
 		}
 	}
 	
 	program_grid.UseProgram();
 	int VertexCount = iter;
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * MaxVerts, &VertexData[0], GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * GridVertexData.size() , &GridVertexData[0], GL_STREAM_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, DensityBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MaxVerts, &DensityData[0], GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * GridDensityData.size() , &GridDensityData[0], GL_STREAM_DRAW);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 1, GL_FLOAT,GL_FALSE, 0, 0);
-	glDrawArrays(GL_QUADS, 0, VertexCount);
-
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, GridIndexData.size() * sizeof(unsigned int), &GridIndexData[0], GL_STREAM_DRAW);
+	glDrawElements(
+		GL_QUADS,      // mode
+		GridIndexData.size(),    // count
+		GL_UNSIGNED_INT,   // type
+		(void*)0           // element array buffer offset
+	);
+	//glDrawArrays(GL_QUADS, 0, VertexCount);
 }

@@ -2,7 +2,19 @@
 #include <cmath>
 struct Vector {
 	float X = 0, Y = 0,Z = 0;//x y z
-	Vector(double x = 0, double y = 0,double z = 0) : X(x), Y(y), Z(z) {};
+	Vector(float x = 0, float y = 0,float z = 0) : X(x), Y(y), Z(z) {};
+
+//	Vector(const Vector&) = default;
+//	Vector(Vector&&) = default;
+	Vector& operator=(const Vector& v)
+	{
+		X = v.X;
+		Y = v.Y;
+		Z = v.Z;
+		return *this;
+	}
+//	Vector& operator=(Vector&&) = default;
+//	~Vector() = default;
 	Vector operator+(Vector vec) {
 		return Vector(X + vec.X, Y + vec.Y,Z + vec.Z);
 	}
@@ -33,7 +45,7 @@ struct Vector {
 		Z /= v;
 	}
 	double Dot(Vector vec) {
-		return (X * vec.X) + (Y * vec.Y) + (Z * vec.Z);
+		return (X * vec.X) + (Y * vec.Y);
 	}
 	double Magnitude()
 	{
@@ -44,12 +56,6 @@ struct Vector {
 	}
 	Vector operator*(float v) {
 		return Vector(X * v, Y * v, Z * v);
-	}
-	Vector& operator=(const Vector & v) {
-		X = v.X;
-		Y = v.Y;
-		Z = v.Z;
-		return *this;
 	}
 	Vector Abs(){
 		return Vector(abs(X), abs(Y), abs(Z));
