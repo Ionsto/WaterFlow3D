@@ -16,10 +16,10 @@ void WaterEngine::PopulateNode(Vector NodePos,Particle particle) {
 	auto& node = grid.Get(static_cast<int>(NodePos.X), static_cast<int>(NodePos.Y));
 	Vector Diff = particle.Position - NodePos;
 	Vector distance = Diff.Abs();
-	float Weighting = (1 - distance.X) * (1 - distance.Y);
-	float WeightingX = copysignf(1 - distance.Y,-Diff.X);
-	float WeightingY = copysignf(1 - distance.X,-Diff.Y);
-	float WeightingXY = copysignf(copysignf(1,-Diff.X),-Diff.Y);
+	double Weighting = (1 - distance.X) * (1 - distance.Y);
+	double WeightingX = copysignf(1 - distance.Y,-Diff.X);
+	double WeightingY = copysignf(1 - distance.X,-Diff.Y);
+	double WeightingXY = copysignf(copysignf(1,-Diff.X),-Diff.Y);
 	node.Mass += Weighting * particle.Mass;
 	node.Force_Internal.X += particle.Stress.DX.X * WeightingX;
 	//node.Force_Internal.X += particle.Stress.DY.X * WeightingX;
@@ -56,15 +56,15 @@ void WaterEngine::UpdateParticlesNode(Vector NodePos,Particle & particle) {
 	auto& node = grid.Get(static_cast<int>(NodePos.X), static_cast<int>(NodePos.Y));
 	Vector Diff = particle.Position - NodePos;
 	Vector distance = Diff.Abs();
-	float Weighting = (1 - distance.X) * (1 - distance.Y);
+	double Weighting = (1 - distance.X) * (1 - distance.Y);
 	particle.Acceleration += node.Acceleration * Weighting;
 //	Weighting = 1;
-	float WeightingX = copysignf(1 - distance.Y,-Diff.X);
-	float WeightingY = copysignf(1 - distance.X,-Diff.Y);
-	float dxdx = node.Velocity.X * WeightingX;
-	float dydy = node.Velocity.Y * WeightingY;
-	float WeightingXY = copysignf(copysignf(1,-Diff.X),-Diff.Y);
-	float dxdy = 0.5* ((node.Velocity.X * WeightingY) + (node.Velocity.Y * WeightingX));
+	double WeightingX = copysignf(1 - distance.Y,-Diff.X);
+	double WeightingY = copysignf(1 - distance.X,-Diff.Y);
+	double dxdx = node.Velocity.X * WeightingX;
+	double dydy = node.Velocity.Y * WeightingY;
+	double WeightingXY = copysignf(copysignf(1,-Diff.X),-Diff.Y);
+	double dxdy = 0.5* ((node.Velocity.X * WeightingY) + (node.Velocity.Y * WeightingX));
 	particle.StrainRate.DX.X += dxdx;
 	particle.StrainRate.DX.Y += dxdy;
 	particle.StrainRate.DY.X += dxdy;
@@ -135,10 +135,10 @@ void WaterEngine::ApplyForces() {
 //		particle.Force += Vector(0, -9.82) * particle.Mass;
 		Vector atractor = Vector(50, 50);
 		Vector diff = particle.Position - atractor;
-		float distance = diff.Magnitude();
+		double distance = diff.Magnitude();
 		if (distance != 0)
 		{
-			particle.Force -= diff * 4* (particle.Mass/distance);
+			particle.Force -= diff * 40.0* (particle.Mass/(distance*distance));
 		}
 		particle.Stress.DX.X += -particle.YoungsModulus * particle.StrainRate.DX.X * DeltaTime;
 		particle.Stress.DX.Y += -particle.ShearModulus * particle.StrainRate.DX.Y * DeltaTime;
@@ -151,7 +151,7 @@ void WaterEngine::ApplyForces() {
 }
 #pragma optimize( "", on )
 void WaterEngine::IntergrateParticles() {
-	static float Damping = 0.00;
+	static double Damping = 0.00;
 	for (int i = 0; i < particle_list.ParticleCount;++i) {
 		auto& particle = particle_list.GetParticle(i);
 		Vector old = particle.Position;
@@ -163,11 +163,12 @@ void WaterEngine::IntergrateParticles() {
 		particle.Momentum = particle.Velocity * particle.Mass;
 	}
 }
-void WaterEngine::Update(float dtreal)
+void WaterEngine::Update(double dtreal)
 {
 	dtacc += dtreal;
 	int simcount = 0;
-	while (dtacc >= DeltaTime)
+	//while (dtacc >= DeltaTime*4)
+	for(int i  = 0;i < 60;++i)
 	{
 		ResetGrid();
 		PopulateGrid();

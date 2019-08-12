@@ -58,7 +58,7 @@ RenderEngine2D::~RenderEngine2D()
 
 void RenderEngine2D::Render(WaterEngine* engine)
 {
-	//RenderGrid(engine->grid);
+	RenderGrid(engine->grid);
 	RenderParticles(engine->particle_list);
 }
 void RenderEngine2D::RenderParticles(SwapList<Particle, WaterEngine::MaxParticleCount> & list) {
