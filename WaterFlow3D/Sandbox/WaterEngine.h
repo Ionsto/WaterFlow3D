@@ -6,7 +6,7 @@ class WaterEngine
 {
 public:
 	static const constexpr int MaxParticleCount = 1000;
-	static const constexpr double DeltaTime = 0.00001f;
+	static const constexpr double DeltaTime = 0.0005f;
 	int t = 0;
 	double dtacc = 0;
 	SwapList<Particle, MaxParticleCount> particle_list;
@@ -20,6 +20,7 @@ public:
 	void ResetGrid();
 	void ApplyForces();
 	void ApplyBoundary();
+	void RemoveOutOfBounds();
 	void Intergrate();
 	void IntergrateGrid();
 	void IntergrateParticles();

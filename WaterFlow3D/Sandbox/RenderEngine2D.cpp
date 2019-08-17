@@ -100,11 +100,15 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 						break;
 					case Velocity:
 						display_value = ((voxel.Velocity.Y+50)/100.0);
-						display_value = ((voxel.Force_Internal.Y+200)/800.0);
+						//display_value = ((voxel.Force_Internal.Y+200)/800.0);
 						break;
 					case Force:
 						display_value = ((voxel.Force.Y+100)/400.0);
 						break;
+					case Black:
+						display_value = 0;
+						break;
+
 				}
 				//display_value = voxel.Pressure;
 				//display_value = -(voxel.Force.Y*10.0) + 0.5;

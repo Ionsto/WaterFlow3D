@@ -6,7 +6,7 @@ struct Tensor {
 };
 struct Particle {
 	float YoungsModulus = 1000;
-	float ShearModulus = 10;
+	float ShearModulus = 1000;
 	int Type = 0;
 	float Mass = 1;
 	Vector Position;

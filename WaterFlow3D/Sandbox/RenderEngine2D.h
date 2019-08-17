@@ -33,7 +33,8 @@ public:
 		Mass,
 		Stress,
 		Velocity,
-		Force
+		Force,
+		Black
 	} DebugDisplay = Mass;
 	RenderEngine2D(GLFWwindow* Window);
 	~RenderEngine2D();

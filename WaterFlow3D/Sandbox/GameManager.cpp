@@ -93,7 +93,7 @@ void GameManager::PollInput()
 {
 	if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		if (clickticker++ == 20) {
+		if (clickticker++ == 1) {
 			double xpos, ypos;
 			glfwGetCursorPos(Window_Handle, &xpos, &ypos);
 			int width, height;
@@ -103,7 +103,8 @@ void GameManager::PollInput()
 			float x = (xpos / width) * waterengine->grid.SizeX;
 			float y = (1.0 - (ypos / height)) * waterengine->grid.SizeY;
 			Vector pos(x, y, 0);
-			pos += Vector(((rand() % 100) / 100.0f) - 0.5) * 10;
+			pos.X += (((rand() % 100) / 100.0f) - 0.5) * 1;
+			pos.Y += (((rand() % 100) / 100.0f) - 0.5) * 1;
 			if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			{
 //				world->AddSand(pos);
@@ -114,6 +115,11 @@ void GameManager::PollInput()
 //				world->AddWater(pos);
 			}
 			clickticker = 0;
+		}
+	}
+	if (glfwGetKey(Window_Handle, GLFW_KEY_R)){
+		for (int i = waterengine->particle_list.ParticleCount - 1;i != -1; --i) {
+			waterengine->particle_list.RemoveParticle(i);
 		}
 	}
 	if (glfwGetKey(Window_Handle, GLFW_KEY_1)){
@@ -132,6 +138,11 @@ void GameManager::PollInput()
 		renderengine->DebugDisplay = RenderEngine2D::Force;
 		glfwSetWindowTitle(Window_Handle,"Force");
 	}
+	if (glfwGetKey(Window_Handle, GLFW_KEY_5)){
+		renderengine->DebugDisplay = RenderEngine2D::Black;
+		glfwSetWindowTitle(Window_Handle,"");
+	}
+
 }
 void GameManager::Update()
 {
