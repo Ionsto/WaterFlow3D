@@ -156,6 +156,7 @@
     <ClCompile Include="WaterEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="logparse.py" />
     <None Include="points.frag" />
     <None Include="points.vert" />
     <None Include="quad.vert" />

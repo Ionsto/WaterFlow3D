@@ -95,7 +95,7 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 						display_value = ((voxel.Mass)/10.0);
 						break;
 					case Stress:
-						display_value = ((voxel.Force_Internal.X+200)/800.0);
+						display_value = ((voxel.Force_Internal.Y+200)/800.0);
 //						display_value = ((voxel.Pressure+2)/10.0);
 						break;
 					case Velocity:

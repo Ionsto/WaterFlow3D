@@ -69,7 +69,7 @@ void GameManager::Run()
 			auto now = std::chrono::high_resolution_clock::now();
 			auto dt = now - StartTime;
 			StartTime = now;
-			std::cout << "Frametime:" << (dt.count() / (100.0 * 1000000000)) << "\n fps:" << ((100.0 * 1000000000) / dt.count()) << "\n";
+			std::cout << "Frametime:" << (dt.count() / (100.0 * 1000000000)) << "\n fps:" << ((100.0 * 1000000000) / dt.count()) << "\n" << " particles: "<< waterengine->particle_list.ParticleCount<<"\n";
 			//std::cout << "Particle count:" << world->waterengine.ParticleCount << "\n";
 			FrameCount = 0;
 		}
@@ -93,7 +93,7 @@ void GameManager::PollInput()
 {
 	if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		if (clickticker++ == 1) {
+		if (clickticker >= 0.001) {
 			double xpos, ypos;
 			glfwGetCursorPos(Window_Handle, &xpos, &ypos);
 			int width, height;
@@ -116,6 +116,7 @@ void GameManager::PollInput()
 			}
 			clickticker = 0;
 		}
+		clickticker += DeltaTime;
 	}
 	if (glfwGetKey(Window_Handle, GLFW_KEY_R)){
 		for (int i = waterengine->particle_list.ParticleCount - 1;i != -1; --i) {

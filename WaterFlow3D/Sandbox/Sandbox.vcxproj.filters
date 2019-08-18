@@ -97,5 +97,8 @@
     <None Include="points.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="logparse.py">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

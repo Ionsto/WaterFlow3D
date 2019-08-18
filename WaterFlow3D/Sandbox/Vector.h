@@ -65,5 +65,10 @@ struct Vector {
 		Y = std::min(std::max(Y, min.Y), max.Y);
 		Z = std::min(std::max(Z, min.Z), max.Z);
 	}
+	friend std::ostream& operator<<(std::ostream& os, const Vector& p)
+	{
+		os << p.X  << ":" << p.Y;
+		return os;
+	}
 };
 

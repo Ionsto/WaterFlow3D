@@ -15,7 +15,7 @@ private:
 	std::chrono::time_point<std::chrono::steady_clock> DtCounter;
 	float DeltaTime = 0;
 public:
-	int clickticker = 0;
+	float clickticker = 0;
 	int clicktickerwater = 0;
 	bool Running = true;
 	std::unique_ptr<WaterEngine> waterengine;
