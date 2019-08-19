@@ -14,7 +14,7 @@ private:
 
 public:
 	static const constexpr int MaxParticleCount = 1000;
-	static const constexpr double DeltaTime = 0.00006f;
+	static const constexpr double DeltaTime = 0.0001f;
 	int t = 0;
 	double dtacc = 0;
 	SwapList<Particle, MaxParticleCount> particle_list;

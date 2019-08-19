@@ -13,14 +13,17 @@ WaterEngine::~WaterEngine()
 
 float WaterEngine::WeightPartialLinear(Vector distance)
 {
-	static constexpr float Root2 = 1.41421;
-	return std::max(0.0,(1 - (distance.Dot(distance)/2)/3.0));
+	return (1 - distance.X) * (1 - distance.Y);
+//	return std::max(0.0,(1 - (distance.Dot(distance)/2)/3.0));
 }
 Vector WaterEngine::WeightGradPartialLinear(Vector distance)
 {
-	return Vector(-distance.X,-distance.Y)/3;
+//	return Vector(copysignf(-1,distance.Y), copysignf(-1,distance.X))/10;
+	//return Vector(copysignf(1 - abs(distance.Y),-distance.X),copysignf(1 - abs(distance.X),-distance.Y));
+//	return Vector(-distance.Y,-distance.X)/3;
 //	return Vector(-RecipricalRoot2 + (distance.Y/2), -RecipricalRoot2 + (distance.X/2));
-	//return Vector(copysignf(1 - abs(distance.Y),-distance.X),copysignf(1 - abs(distance.X),-distance.Y)) * 0.25;
+	return Vector(1, 1 - distance.Y);
+//	return Vector(copysignf(1 - abs(distance.Y),-distance.Y),copysignf(1 - abs(distance.X),-distance.Y)) * 0.25;
 }
 float WaterEngine::WeightLinear(Vector distance)
 {
@@ -28,7 +31,7 @@ float WaterEngine::WeightLinear(Vector distance)
 }
 Vector WaterEngine::WeightGradLinear(Vector distance)
 {
-	return Vector(copysignf(1 - abs(distance.Y),-distance.X),copysignf(1 - abs(distance.X),-distance.Y));
+	return Vector(copysignf(0,-distance.X),copysignf(-1,-distance.Y));
 }
 
 //#pragma optimize( "", on )
@@ -36,14 +39,13 @@ void WaterEngine::PopulateNode(Vector NodePos,Particle particle) {
 	auto& node = grid.Get(static_cast<int>(NodePos.X), static_cast<int>(NodePos.Y));
 	Vector Diff = particle.Position - NodePos;
 	Vector distance = Diff.Abs();
-	double Weighting = WeightLinear(distance);//(1 - distance.X)* (1 - distance.Y);
-	Vector WeightGrad = WeightGradLinear(Diff);
-	//double WeightingXY = copysignf(copysignf(1,-Diff.X),-Diff.Y);
+	double Weighting = WeightPartialLinear(distance);//(1 - distance.X)* (1 - distance.Y);
+	Vector WeightGrad = WeightGradPartialLinear(Diff);
 	node.Mass += Weighting * particle.Mass;
-	node.Force_Internal.X += particle.Stress.DX.X * WeightGrad.X;
-	node.Force_Internal.X += particle.Stress.DX.Y * WeightGrad.Y;
+	//node.Force_Internal.X += particle.Stress.DX.X * WeightGrad.X;
+	//node.Force_Internal.X += particle.Stress.DX.Y * WeightGrad.Y;
 	node.Force_Internal.Y += particle.Stress.DY.Y * WeightGrad.Y;
-	node.Force_Internal.Y += particle.Stress.DY.X * WeightGrad.X;
+	//node.Force_Internal.Y += particle.Stress.DY.X * WeightGrad.X;
 	node.Force_External += particle.Force * Weighting;
 	node.Velocity += particle.Momentum * Weighting;
 }
@@ -83,10 +85,10 @@ void WaterEngine::UpdateParticlesNode(Vector NodePos,Particle & particle) {
 	auto& node = grid.Get(static_cast<int>(NodePos.X), static_cast<int>(NodePos.Y));
 	Vector Diff = particle.Position - NodePos;
 	Vector distance = Diff.Abs();
-	double Weighting = WeightLinear(distance);
+	double Weighting = WeightPartialLinear(distance);
 	particle.Acceleration += node.Acceleration * Weighting;
 //	Weighting = 1;
-	Vector GradWeight = WeightGradLinear(Diff);
+	Vector GradWeight = WeightGradPartialLinear(Diff);
 	double dxdx = node.Velocity.X * GradWeight.X;
 	double dydy = node.Velocity.Y * GradWeight.Y;
 	//double WeightingXY = copysignf(copysignf(1,-Diff.X),-Diff.Y);
@@ -107,7 +109,7 @@ void WaterEngine::ApplyBoundary()
 		//particle.Position.Clamp(Vector(0, 0), Vector(grid.SizeX, grid.SizeY));
 		//particle.PositionOld.Clamp(Vector(0, 0), Vector(grid.SizeX, grid.SizeY));
 		//if (particle.Position.X < 1 || particle.Position.Y < 2 || particle.Position.X > grid.SizeX - 2  || particle.Position.Y - 2 > grid.SizeY) {
-		if (particle.Position.Y < 1 && particle.Velocity.Y < 0) {
+		if (particle.Position.Y < 2 && particle.Velocity.Y < 0) {
 			Vector del = particle.Position - particle.PositionOld;
 			particle.PositionOld.Y += del.Y * damping;
 			particle.PositionOld.X += del.X * friction;
@@ -117,7 +119,7 @@ void WaterEngine::ApplyBoundary()
 			particle.PositionOld.X = particle.Position.X;
 			particle.Momentum.X = std::max(particle.Momentum.X, 0.0);
 		}*/
-		if (particle.Position.X < 0 || particle.Position.Y < 0 || particle.Position.X > grid.SizeX || particle.Position.Y > grid.SizeY) {
+		if (particle.Position.X < 1 || particle.Position.Y < 1 || particle.Position.X > grid.SizeX-1 || particle.Position.Y > grid.SizeY-1) {
 			particle_list.RemoveParticle(i--);
 		}
 	}
@@ -179,19 +181,19 @@ void WaterEngine::IntergrateGrid() {
 		}
 	}
 }
-//#pragma optimize( "", on )
+#pragma optimize( "", off )
 void WaterEngine::ApplyForces() {
 	for (int i = 0; i < particle_list.ParticleCount; ++i)
 	{
 		auto& particle = particle_list.GetParticle(i);
 		particle.Force = Vector();
-		particle.Force += Vector(0, -9.82) * particle.Mass;
+		particle.Force += Vector(0, -1.82) * particle.Mass;
 		Vector atractor = Vector(50, 50);
 		Vector diff = particle.Position - atractor;
 		double distance = diff.Magnitude();
 		if (distance != 0)
 		{
-		//	particle.Force -= diff * 40.0* (particle.Mass/(distance*distance));
+			particle.Force -= diff * 40.0* (particle.Mass/(distance*distance));
 		}
 /*
 		particle.Stress.DX.X += -particle.YoungsModulus * particle.StrainRate.DX.X * DeltaTime;
@@ -199,25 +201,44 @@ void WaterEngine::ApplyForces() {
 		particle.Stress.DY.Y += -particle.YoungsModulus * particle.StrainRate.DY.Y * DeltaTime;
 		particle.Stress.DY.X += -particle.ShearModulus * particle.StrainRate.DY.X * DeltaTime;
 */
-		float prefix = particle.YoungsModulus / (1 - particle.PoissonsRatio * particle.PoissonsRatio);
-		particle.Stress.DX.X -=  prefix * (particle.StrainRate.DX.X + particle.PoissonsRatio * particle.StrainRate.DY.Y) * DeltaTime;
-		particle.Stress.DY.Y -=  prefix * (particle.StrainRate.DY.Y + particle.PoissonsRatio * particle.StrainRate.DX.X) * DeltaTime;
-		float deltaxy = (0.5 * particle.YoungsModulus / (1.0 + particle.PoissonsRatio)) * particle.StrainRate.DX.Y * DeltaTime;
-		particle.Stress.DX.Y -= deltaxy;
-		particle.Stress.DY.X -= deltaxy;
+		//Plain stress
+		particle.Strain.DY.Y += particle.StrainRate.DY.Y * DeltaTime;
+		particle.Strain.DY.Y *= 0.9;
+		particle.Stress.DY.Y = particle.YoungsModulus * particle.Strain.DY.Y;
+		/*
+		if constexpr (true) {
+			float prefix = particle.YoungsModulus / (1 - (particle.PoissonsRatio * particle.PoissonsRatio));
+			particle.Stress.DX.X +=  prefix * (particle.StrainRate.DX.X + particle.PoissonsRatio * particle.StrainRate.DY.Y) * DeltaTime;
+			particle.Stress.DY.Y +=  prefix * (particle.StrainRate.DY.Y + particle.PoissonsRatio * particle.StrainRate.DX.X) * DeltaTime;
+			float deltaxy = (0.5 * particle.YoungsModulus / (1.0 + particle.PoissonsRatio)) * particle.StrainRate.DX.Y * DeltaTime;
+			particle.Stress.DX.Y += deltaxy;
+			particle.Stress.DY.X += deltaxy;
+		}
+		else
+		{
+			//plain strain
+			float prefix = particle.YoungsModulus / ((1 + particle.PoissonsRatio) * (1 - 2*particle.PoissonsRatio));
+			float sb = 1 - particle.PoissonsRatio;
+			particle.Stress.DX.X +=  prefix * (particle.StrainRate.DX.X * sb + particle.PoissonsRatio * particle.StrainRate.DY.Y) * DeltaTime;
+			particle.Stress.DY.Y +=  prefix * (particle.StrainRate.DY.Y * sb + particle.PoissonsRatio * particle.StrainRate.DX.X) * DeltaTime;
+			float deltaxy = prefix * (1 - 2 * particle.PoissonsRatio) / 2 * particle.StrainRate.DX.Y * DeltaTime;
+			particle.Stress.DX.Y += deltaxy;
+			particle.Stress.DY.X += deltaxy;
+		}*/
 
 //		particle.Stress = particle.Strain * particle.YoungsModulus;
 	}
 }
+#pragma optimize( "", on )
 //#pragma optimize( "", on )
 void WaterEngine::IntergrateParticles() {
-	static double Damping = 0.00;
+	static double Damping = 0.0;
 	for (int i = 0; i < particle_list.ParticleCount;++i) {
 		auto& particle = particle_list.GetParticle(i);
+		particle.Velocity = (particle.Position - particle.PositionOld) / DeltaTime;
 		Vector old = particle.Position;
 		particle.Position += ((particle.Position - particle.PositionOld) * (1-Damping)) + (particle.Acceleration* DeltaTime * DeltaTime);
 		particle.PositionOld = old;
-		particle.Velocity = (particle.Position - particle.PositionOld) / DeltaTime;
 		particle.Momentum = particle.Velocity * particle.Mass;
 	}
 }
@@ -225,8 +246,8 @@ void WaterEngine::Update(double dtreal)
 {
 	dtacc += dtreal;
 	int simcount = 0;
-	//while (dtacc >= DeltaTime)
-	for(int i  = 0;i < 40;++i)
+//	while (dtacc >= DeltaTime)
+	for(int i  = 0;i < 1;++i)
 	{
 		ResetGrid();
 		PopulateGrid();

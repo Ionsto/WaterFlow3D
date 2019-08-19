@@ -8,7 +8,7 @@ struct Tensor {
 };
 struct Particle {
 	float YoungsModulus = 1e3;
-	float PoissonsRatio = 0.01;
+	float PoissonsRatio = 0.0;
 	float ShearModulus = 1000;
 	int Type = 0;
 	float Mass = 1;
@@ -20,6 +20,7 @@ struct Particle {
 	Vector Acceleration;
 	//Vector Strain;
 	Tensor Stress;
+	Tensor Strain;
 	Tensor StrainRate;
 	friend std::ostream& operator<<(std::ostream& os, const Particle& p)
 	{

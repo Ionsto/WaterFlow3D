@@ -65,7 +65,7 @@ void RenderEngine2D::RenderParticles(SwapList<Particle, WaterEngine::MaxParticle
 	for (int i = 0; i < list.ParticleCount; ++i) {
 		ParticleVertexData[i * 2] = list.GetParticle(i).Position.X;
 		ParticleVertexData[i * 2 + 1] = list.GetParticle(i).Position.Y;
-		ParticleDensityData[i] = list.GetParticle(i).StrainRate.DY.Y;
+		ParticleDensityData[i] = (list.GetParticle(i).Stress.DY.Y + 100) / 200;
 	}
 	program_points.UseProgram();
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBufferPoints);
