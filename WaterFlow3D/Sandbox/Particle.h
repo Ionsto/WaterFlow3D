@@ -7,8 +7,8 @@ struct Tensor {
 	Vector DY;
 };
 struct Particle {
-	float YoungsModulus = 1e3;
-	float PoissonsRatio = 0.0;
+	float YoungsModulus = 1e5;
+	float PoissonsRatio = 0.1;
 	float ShearModulus = 1000;
 	int Type = 0;
 	float Mass = 1;

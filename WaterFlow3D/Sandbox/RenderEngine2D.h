@@ -25,7 +25,7 @@ public:
 	static constexpr int MaxVerts = VoxelGrid::SizeX * VoxelGrid::SizeY;
 	std::array<float,2 * MaxVerts> GridVertexData;
 	std::array<float,MaxVerts> GridDensityData;
-	std::array<unsigned int, (VoxelGrid::SizeX - 1) * (VoxelGrid::SizeY-1) * 4> GridIndexData;
+	std::array<unsigned int, (VoxelGrid::SizeX - 1) * (VoxelGrid::SizeY-1) * 6> GridIndexData;
 	static constexpr int MaxParticles = WaterEngine::MaxParticleCount;
 	std::array<float, 2 * MaxParticles> ParticleVertexData;
 	std::array<float, MaxParticles> ParticleDensityData;

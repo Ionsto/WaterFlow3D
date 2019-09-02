@@ -65,7 +65,7 @@ void RenderEngine2D::RenderParticles(SwapList<Particle, WaterEngine::MaxParticle
 	for (int i = 0; i < list.ParticleCount; ++i) {
 		ParticleVertexData[i * 2] = list.GetParticle(i).Position.X;
 		ParticleVertexData[i * 2 + 1] = list.GetParticle(i).Position.Y;
-		ParticleDensityData[i] = (list.GetParticle(i).Stress.DY.Y + 100) / 200;
+		ParticleDensityData[i] = (list.GetParticle(i).Acceleration.Y + 50) / 25.0;
 	}
 	program_points.UseProgram();
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBufferPoints);
@@ -92,10 +92,10 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 				switch (DebugDisplay)
 				{
 					case Mass:
-						display_value = ((voxel.Mass)/10.0);
+						display_value = ((voxel.Mass)/0.5);
 						break;
 					case Stress:
-						display_value = ((voxel.Force_Internal.Y+200)/800.0);
+						display_value = ((voxel.Force_Internal.Y+20000)/80000.0);
 //						display_value = ((voxel.Pressure+2)/10.0);
 						break;
 					case Velocity:
@@ -106,7 +106,7 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 						display_value = ((voxel.Force.Y+100)/400.0);
 						break;
 					case Black:
-						display_value = 0;
+						display_value = -1;
 						break;
 
 				}
@@ -116,11 +116,16 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 				GridDensityData[iter++] = display_value;
 				GridVertexData[itervert++] = x;
 				GridVertexData[itervert++] = y;
-				if (y + 1 < grid.SizeY && x + 1 < grid.SizeX) {
-					GridIndexData[iterindex++] = (y)+((x)* VoxelGrid::SizeY);
-					GridIndexData[iterindex++] = (y + 1) + ((x)* VoxelGrid::SizeY);
-					GridIndexData[iterindex++] = (y + 1) + ((x + 1) * VoxelGrid::SizeY);
-					GridIndexData[iterindex++] = (y)+((x + 1) * VoxelGrid::SizeY);
+				//if (x % 2 == 0 && y % 2 == 0)
+				{
+					if (y + 1 < grid.SizeY && x + 1 < grid.SizeX) {
+						GridIndexData[iterindex++] = (y)+((x)* VoxelGrid::SizeY);
+						GridIndexData[iterindex++] = (y + 1) + ((x)* VoxelGrid::SizeY);
+						GridIndexData[iterindex++] = (y + 1) + ((x + 1) * VoxelGrid::SizeY);
+						GridIndexData[iterindex++] = (y + 1) + ((x + 1) * VoxelGrid::SizeY);
+						GridIndexData[iterindex++] = (y)+((x + 1) * VoxelGrid::SizeY);
+						GridIndexData[iterindex++] = (y)+((x)* VoxelGrid::SizeY);
+					}
 				}
 //				GridDensityData[iter++] = display_value;
 //				GridVertexData[itervert++] = x;
@@ -147,7 +152,7 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, GridIndexData.size() * sizeof(unsigned int), &GridIndexData[0], GL_STREAM_DRAW);
 	glDrawElements(
-		GL_QUADS,      // mode
+		GL_TRIANGLES,      // mode
 		GridIndexData.size(),    // count
 		GL_UNSIGNED_INT,   // type
 		(void*)0           // element array buffer offset

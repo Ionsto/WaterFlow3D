@@ -1,8 +1,8 @@
 #pragma once
 #include <cmath>
 struct Vector {
-	double X = 0, Y = 0,Z = 0;//x y z
-	Vector(double x = 0, float y = 0,float z = 0) : X(x), Y(y), Z(z) {};
+	float X = 0, Y = 0,Z = 0;//x y z
+	Vector(float x = 0, double y = 0,double z = 0) : X(x), Y(y), Z(z) {};
 
 //	Vector(const Vector&) = default;
 //	Vector(Vector&&) = default;
@@ -21,7 +21,7 @@ struct Vector {
 	Vector operator-(Vector vec) {
 		return Vector(X - vec.X, Y - vec.Y, Z - vec.Z);
 	}
-	Vector operator-(double v) {
+	Vector operator-(float v) {
 		return Vector(X - v, Y - v, Z - v);
 	}
 	void operator-=(Vector vec) {
@@ -34,27 +34,27 @@ struct Vector {
 		Y += vec.Y;
 		Z += vec.Z;
 	}
-	void operator*=(double v) {
+	void operator*=(float v) {
 		X *= v;
 		Y *= v;
 		Z *= v;
 	}
-	void operator/=(double v) {
+	void operator/=(float v) {
 		X /= v;
 		Y /= v;
 		Z /= v;
 	}
-	double Dot(Vector vec) {
+	float Dot(Vector vec) {
 		return (X * vec.X) + (Y * vec.Y);
 	}
-	double Magnitude()
+	float Magnitude()
 	{
 		return std::sqrt(Dot(*this));
 	}
-	Vector operator/(double v) {
+	Vector operator/(float v) {
 		return Vector(X / v, Y / v, Z / v);
 	}
-	Vector operator*(double v) {
+	Vector operator*(float v) {
 		return Vector(X * v, Y * v, Z * v);
 	}
 	Vector Abs(){

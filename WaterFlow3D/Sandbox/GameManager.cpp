@@ -93,7 +93,7 @@ void GameManager::PollInput()
 {
 	if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		if (clickticker >= 0.001) {
+		if (clickticker >= 0.01) {
 			double xpos, ypos;
 			glfwGetCursorPos(Window_Handle, &xpos, &ypos);
 			int width, height;
