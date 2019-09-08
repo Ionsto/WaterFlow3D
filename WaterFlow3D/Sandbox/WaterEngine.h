@@ -24,9 +24,9 @@ public:
 	VoxelGrid grid;
 	WaterEngine();
 	~WaterEngine();
-	void PopulateNode(Vector NodePos,Vector DV,Particle particle);
+	void PopulateNode(Vector NodePos,Particle particle);
 	void PopulateGrid();
-	void UpdateParticlesNode(Vector NodePos,Vector DV,Particle & particle);
+	void UpdateParticlesNode(Vector NodePos,Particle & particle);
 	void UpdateParticles();
 	void ResetGrid();
 	void ApplyForces();

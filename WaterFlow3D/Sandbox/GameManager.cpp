@@ -102,7 +102,7 @@ void GameManager::PollInput()
 			glfwGetWindowSize(Window_Handle, &width, &height);
 			float x = (xpos / width) * waterengine->grid.SizeX;
 			float y = (1.0 - (ypos / height)) * waterengine->grid.SizeY;
-			Vector pos(x, y, 0);
+			Vector pos{x, y};
 			pos.X += (((rand() % 100) / 100.0f) - 0.5) * 1;
 			pos.Y += (((rand() % 100) / 100.0f) - 0.5) * 1;
 			if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)

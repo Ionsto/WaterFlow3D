@@ -17,6 +17,7 @@ float WaterEngine::WeightPolyAxis(float x)
 		return 0.75 - (x * x);
 	}
 	else if (x < -0.5)
+
 	{
 		return 0.125 + (0.5 * x * (1.0 + x));
 	}
@@ -50,7 +51,7 @@ float WaterEngine::WeightPoly(Vector pos)
 }
 Vector WaterEngine::WeightGradPoly(Vector pos)
 {
-	return Vector(WeightPolyGradAxis(pos.X) * WeightPolyAxis(pos.Y), WeightPolyGradAxis(pos.Y) * WeightPolyAxis(pos.X));
+	return Vector{WeightPolyGradAxis(pos.X) * WeightPolyAxis(pos.Y), WeightPolyGradAxis(pos.Y) * WeightPolyAxis(pos.X)};
 }
 float WaterEngine::WeightLinear(Vector distance)
 {
@@ -58,13 +59,13 @@ float WaterEngine::WeightLinear(Vector distance)
 }
 Vector WaterEngine::WeightGradLinear(Vector distance)
 {
-	return Vector(copysignf(1,-distance.X), copysignf(1,-distance.Y));
+	return Vector{copysignf(1,-distance.X), copysignf(1,-distance.Y)};
 }
 
 #pragma optimize( "", off )
-void WaterEngine::PopulateNode(Vector NodePos,Vector DV,Particle particle) {
-	auto& node = grid.Get(static_cast<int>(NodePos.X + DV.X), static_cast<int>(NodePos.Y + DV.Y));
-	Vector Diff = particle.Position - (NodePos + DV);
+void WaterEngine::PopulateNode(Vector NodePos,Particle particle) {
+	auto& node = grid.Get(static_cast<int>(NodePos.X), static_cast<int>(NodePos.Y));
+	Vector Diff = particle.Position - (NodePos);
 	double Weighting = WeightPoly(Diff);//(1 - distance.X)* (1 - distance.Y);
 	Vector WeightGrad = WeightGradPoly(Diff);
 	node.Mass += Weighting * particle.Mass;
@@ -81,13 +82,13 @@ void WaterEngine::PopulateGrid(){
 	for (int i = 0; i < particle_list.ParticleCount; ++i)
 	{
 		auto& particle = particle_list.GetParticle(i);
-		int xpos = round(particle.Position.X);
-		int ypos = round(particle.Position.Y);
-		Vector NodePos = Vector(xpos, ypos);
+		float xpos = round(particle.Position.X);
+		float ypos = round(particle.Position.Y);
+		Vector NodePos = Vector{xpos, ypos};
 		for (int dx = -GridEvalSize; dx <= GridEvalSize; ++dx) {
 			for (int dy =  -GridEvalSize; dy <= GridEvalSize; ++dy) {
 				if (grid.InBounds(NodePos.X + dx, NodePos.Y + dy)) {
-					PopulateNode(NodePos, Vector(dx,dy), particle);
+					PopulateNode(NodePos + Vector{static_cast<float>(dx),static_cast<float>(dy)}, particle);
 				}
 			}
 		}
@@ -104,12 +105,12 @@ float LinearWeight(Vector distance)
 }
 Vector LinearGradWeight(Vector distance, Vector Diff)
 {
-	return Vector(copysignf(1 - distance.Y, -Diff.X), copysignf(1 - distance.X, -Diff.Y));
+	return Vector{copysignf(1 - distance.Y, -Diff.X), copysignf(1 - distance.X, -Diff.Y)};
 }
 #pragma optimize( "", off)
-void WaterEngine::UpdateParticlesNode(Vector NodePos,Vector DV,Particle & particle) {
-	auto& node = grid.Get(static_cast<int>(NodePos.X + DV.X), static_cast<int>(NodePos.Y + DV.Y));
-	Vector Diff = particle.Position - (NodePos + DV);
+void WaterEngine::UpdateParticlesNode(Vector NodePos,Particle & particle) {
+	auto& node = grid.Get(static_cast<int>(NodePos.X), static_cast<int>(NodePos.Y));
+	Vector Diff = particle.Position - (NodePos);
 	double Weighting = WeightPoly(Diff);
 	particle.Acceleration += node.Acceleration * Weighting;
 	Vector GradWeight = WeightGradPoly(Diff);
@@ -174,13 +175,13 @@ void WaterEngine::UpdateParticles(){
 		particle.Acceleration = Vector();
 		particle.StrainRate.DX = Vector();
 		particle.StrainRate.DY = Vector();
-		int xpos = round(particle.Position.X);
-		int ypos = round(particle.Position.Y);
-		Vector NodePos = Vector(xpos, ypos);
+		float xpos = round(particle.Position.X);
+		float ypos = round(particle.Position.Y);
+		Vector NodePos = Vector{xpos, ypos};
 		for (int dx = -GridEvalSize; dx <= GridEvalSize; ++dx) {
 			for (int dy = -GridEvalSize; dy <= GridEvalSize; ++dy) {
 				if (grid.InBounds(NodePos.X + dx, NodePos.Y + dy)) {
-					UpdateParticlesNode(NodePos, Vector(dx, dy), particle);
+					UpdateParticlesNode(NodePos + Vector{static_cast<float>(dx),static_cast<float>(dy)}, particle);
 				}
 			}
 		}
@@ -215,8 +216,8 @@ void WaterEngine::ApplyForces() {
 	{
 		auto& particle = particle_list.GetParticle(i);
 		particle.Force = Vector();
-		particle.Force += Vector(0, -9.82) * particle.Mass;
-		Vector atractor = Vector(50, 50);
+		particle.Force += Vector{0, -9.82} * particle.Mass;
+		Vector atractor = Vector{50, 50};
 		Vector diff = particle.Position - atractor;
 		double distance = diff.Magnitude();
 		if (distance != 0)
