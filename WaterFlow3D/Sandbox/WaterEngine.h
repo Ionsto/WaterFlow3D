@@ -7,16 +7,18 @@ class WaterEngine
 {
 private:
 	std::ofstream Logfile;
-	float WeightPolyAxis(float x);
-	float WeightPolyGradAxis(float x);
-	float WeightPoly(Vector distance);
-	Vector WeightGradPoly(Vector distance);
-	float WeightLinear(Vector distance);
-	Vector WeightGradLinear(Vector distance);
+	double WeightPolyAxis(double x);
+	double WeightPolyGradAxis(double x);
+	double WeightPoly(glm::dvec2 distance);
+	glm::dvec2 WeightGradPoly(glm::dvec2 distance);
+	double WeightLinear(glm::dvec2 distance);
+	glm::dvec2 WeightGradLinear(glm::dvec2 distance);
 
 public:
-	static const constexpr int MaxParticleCount = 1000;
-	static const constexpr double DeltaTime = 0.001f;
+	glm::dvec2 MousePull;
+	double MouseAttract = 0;
+	static const constexpr int MaxParticleCount = 2000;
+	static const constexpr double DeltaTime = 1e-4;
 	static constexpr int GridEvalSize = 1;
 	int t = 0;
 	double dtacc = 0;
@@ -24,19 +26,21 @@ public:
 	VoxelGrid grid;
 	WaterEngine();
 	~WaterEngine();
-	void PopulateNode(Vector NodePos,Particle particle);
+	void PopulateNode(glm::dvec2 NodePos,Particle particle);
 	void PopulateGrid();
-	void UpdateParticlesNode(Vector NodePos,Particle & particle);
+	void UpdateParticlesNode(glm::dvec2 NodePos,Particle & particle);
 	void UpdateParticles();
 	void ResetGrid();
 	void ApplyForces();
 	void ApplyBoundary();
 	void RemoveOutOfBounds();
 	void Intergrate();
+	void PreIntergrate();
 	void IntergrateGrid();
 	void IntergrateParticles();
 	void Update(double dtreal);
-	void AddWater(Vector pos);
+	void AddWater(glm::dvec2 pos);
 	void DumpParticles();
+	float CalculateEnergy();
 };
 

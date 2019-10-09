@@ -39,9 +39,6 @@
     <ClInclude Include="ShaderProgram.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Vector.h">
-      <Filter>Header Files\Sim</Filter>
-    </ClInclude>
     <ClInclude Include="Voxel.h">
       <Filter>Header Files\Sim</Filter>
     </ClInclude>
@@ -72,12 +69,6 @@
       <Filter>Source Files\Render</Filter>
     </ClCompile>
     <ClCompile Include="WaterEngine.cpp">
-      <Filter>Source Files\Sim</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector.cpp">
-      <Filter>Source Files\Sim</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelGrid.cpp">
       <Filter>Source Files\Sim</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">

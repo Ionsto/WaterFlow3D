@@ -39,7 +39,7 @@ GameManager::GameManager()
 	waterengine = std::make_unique<WaterEngine>();
 	std::cout << "Init GPU sys" << std::endl;
 //	world->waterengine.Init(Window_Handle);
-	//world->AddWater(Vector(100,100));
+	//world->AddWater(glm::dvec2(100,100));
 	std::cout << "Init render engine" << std::endl;
 	renderengine = std::make_unique<RenderEngine2D>(Window_Handle);
 	int width, height;
@@ -74,7 +74,7 @@ void GameManager::Run()
 			FrameCount = 0;
 		}
 		auto end = std::chrono::high_resolution_clock::now();
-		DeltaTime = (end - DtCounter).count() / 1000000000.0;
+		DeltaTime = (end - DtCounter).count()/1e9;
 		DtCounter = end;
 	}
 }
@@ -93,30 +93,42 @@ void GameManager::PollInput()
 {
 	if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		if (clickticker >= 0.01) {
-			double xpos, ypos;
-			glfwGetCursorPos(Window_Handle, &xpos, &ypos);
-			int width, height;
-			int left, top, right, bottom;
-			glfwGetWindowFrameSize(Window_Handle, &left, &top, &right, &bottom);
-			glfwGetWindowSize(Window_Handle, &width, &height);
-			float x = (xpos / width) * waterengine->grid.SizeX;
-			float y = (1.0 - (ypos / height)) * waterengine->grid.SizeY;
-			Vector pos{x, y};
-			pos.X += (((rand() % 100) / 100.0f) - 0.5) * 1;
-			pos.Y += (((rand() % 100) / 100.0f) - 0.5) * 1;
-			if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			{
-//				world->AddSand(pos);
-				waterengine->AddWater(pos);
+		double xpos, ypos;
+		glfwGetCursorPos(Window_Handle, &xpos, &ypos);
+		int width, height;
+		int left, top, right, bottom;
+		glfwGetWindowFrameSize(Window_Handle, &left, &top, &right, &bottom);
+		glfwGetWindowSize(Window_Handle, &width, &height);
+		double x = (xpos / width) * waterengine->grid.SizeX;
+		double y = (1.0 - (ypos / height)) * waterengine->grid.SizeY;
+		glm::dvec2 pos{ x, y };
+
+		if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			if (clickticker >= 0.1) {
+				pos.x += (((rand() % 100) / 100.0f) - 0.5) * 5;
+				pos.y += (((rand() % 100) / 100.0f) - 0.5) * 5;
+				if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+				{
+					waterengine->AddWater(pos);
+				}
+				else
+				{
+					//world->AddWater(pos);
+				}
+				clickticker = 0;
 			}
-			else
-			{
-//				world->AddWater(pos);
-			}
-			clickticker = 0;
+			clickticker += DeltaTime;
 		}
-		clickticker += DeltaTime;
+		if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		{
+			waterengine->MouseAttract = 90;
+			waterengine->MousePull = pos;
+		}
+
+	}
+	else {
+		waterengine->MouseAttract = 0;
 	}
 	if (glfwGetKey(Window_Handle, GLFW_KEY_R)){
 		for (int i = waterengine->particle_list.ParticleCount - 1;i != -1; --i) {

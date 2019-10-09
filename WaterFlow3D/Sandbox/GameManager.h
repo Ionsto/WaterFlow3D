@@ -13,9 +13,9 @@ private:
 	int FrameCount = 0;
 	std::chrono::time_point<std::chrono::steady_clock> StartTime;
 	std::chrono::time_point<std::chrono::steady_clock> DtCounter;
-	float DeltaTime = 0;
+	double DeltaTime = 0;
 public:
-	float clickticker = 0;
+	double clickticker = 0;
 	int clicktickerwater = 0;
 	bool Running = true;
 	std::unique_ptr<WaterEngine> waterengine;

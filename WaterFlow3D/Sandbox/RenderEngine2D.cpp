@@ -63,9 +63,15 @@ void RenderEngine2D::Render(WaterEngine* engine)
 }
 void RenderEngine2D::RenderParticles(SwapList<Particle, WaterEngine::MaxParticleCount> & list) {
 	for (int i = 0; i < list.ParticleCount; ++i) {
-		ParticleVertexData[i * 2] = list.GetParticle(i).Position.X;
-		ParticleVertexData[i * 2 + 1] = list.GetParticle(i).Position.Y;
-		ParticleDensityData[i] = (list.GetParticle(i).Acceleration.Y + 50) / 25.0;
+		ParticleVertexData[i * 2] = list.GetParticle(i).Position.x;
+		ParticleVertexData[i * 2 + 1] = list.GetParticle(i).Position.y;
+		if (DebugDisplay != Black)
+		{
+			ParticleDensityData[i] = (list.GetParticle(i).Acceleration.y + 10) / 20.0;
+		}
+		else {
+			ParticleDensityData[i] = 0;
+		}
 	}
 	program_points.UseProgram();
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBufferPoints);
@@ -92,18 +98,18 @@ void RenderEngine2D::RenderGrid(VoxelGrid& grid)
 				switch (DebugDisplay)
 				{
 					case Mass:
-						display_value = ((voxel.Mass)/0.5);
+						display_value = ((voxel.Mass)/5);
 						break;
 					case Stress:
-						display_value = ((voxel.Force_Internal.Y+20000)/80000.0);
+						display_value = ((voxel.Force_Internal.y+20000)/80000.0);
 //						display_value = ((voxel.Pressure+2)/10.0);
 						break;
 					case Velocity:
-						display_value = ((voxel.Velocity.Y+50)/100.0);
+						display_value = ((voxel.Velocity.y+50)/100.0);
 						//display_value = ((voxel.Force_Internal.Y+200)/800.0);
 						break;
 					case Force:
-						display_value = ((voxel.Force.Y+100)/400.0);
+						display_value = ((voxel.Force.y+100)/400.0);
 						break;
 					case Black:
 						display_value = -1;

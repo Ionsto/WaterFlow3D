@@ -1,37 +1,40 @@
 #pragma once
-#include "Vector.h"
+#include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 #include <iostream>
 #include <ostream>
-struct Tensor {
-	Vector DX;
-	Vector DY;
-};
 struct Particle {
-	float YoungsModulus = 1e5;
-	float PoissonsRatio = 0.1;
-	float ShearModulus = 1000;
-	int Type = 0;
-	float Mass = 1;
-	Vector Position;
-	Vector PositionOld;
-	Vector Velocity;
-	Vector Force;
-	Vector Momentum;
-	Vector Acceleration;
-	//Vector Strain;
-	Tensor Stress;
-	Tensor Strain;
-	Tensor StrainRate;
+	double YoungsModulus = -1e4;
+	double PoissonsRatio = 0.0;
+	double c1 = 0.3;
+	double c2 = 0.0;
+	double c3 = 0.0;
+	double c4 = 0.0;
+	int Type = 1;
+	double Mass = 1e0;
+	double Volume = 1;
+	double StrainEnergy = 0;
+	glm::dvec2 Position = glm::dvec2(0);
+	glm::dvec2 PositionOld = glm::dvec2(0);
+	glm::dvec2 Velocity = glm::dvec2(0);
+	glm::dvec2 VelocityOld = glm::dvec2(0);
+	glm::dvec2 Force = glm::dvec2(0);
+	glm::dvec2 Momentum = glm::dvec2(0);
+	glm::dvec2 Acceleration = glm::dvec2(0);
+	glm::dvec2 AccelerationOld = glm::dvec2(0);
+	glm::dmat2x2 Stress = glm::dmat2x2(0);
+	static constexpr double StrainFactor = 1e0;
+	glm::dmat2x2 Strain = glm::dmat2x2(0);
+	glm::dmat2x2 StrainRate = glm::dmat2x2(0);
+	glm::dmat2x2 StrainRateOld = glm::dmat2x2(0);
 	friend std::ostream& operator<<(std::ostream& os, const Particle& p)
 	{
-		os	<< p.Position << ","
+/*		os	<< p.Position << ","
 			<< p.Velocity << ","
 			<< p.Force << ","
 			<< p.Momentum << ","
-			<< p.Stress.DX << ","
-			<< p.Stress.DY << ","
-			<< p.StrainRate.DX << ","
-			<< p.StrainRate.DY;
+			<< p.Stress << ","
+			<< p.StrainRate << ","*/
 		return os;
 	}
 };

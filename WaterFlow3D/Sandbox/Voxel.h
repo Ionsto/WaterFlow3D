@@ -1,12 +1,12 @@
 #pragma once
-#include "Vector.h"
+#include <glm/vec2.hpp>
 struct Voxel
 {
 	double Mass = 0;
-	Vector Velocity;
-	Vector Force_Internal;
-	Vector Force_External;
-	Vector Force;
-	Vector Acceleration;
+	glm::dvec2 Velocity;
+	glm::dvec2 Force_Internal;
+	glm::dvec2 Force_External;
+	glm::dvec2 Force;
+	glm::dvec2 Acceleration;
 };
 

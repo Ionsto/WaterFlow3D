@@ -9,7 +9,7 @@ class Vector():
     Y = 0
     def __init__(self,string):
         #print(string.split(":"))
-        self.X,self.Y = list(map(float,string.split(":")))
+        self.X,self.Y = list(map(double,string.split(":")))
     def Mag(self):
         return self.X * self.X + self.Y * self.Y
 class Particle():
