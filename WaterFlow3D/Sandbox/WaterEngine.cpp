@@ -116,6 +116,7 @@ void WaterEngine::UpdateParticlesNode(glm::dvec2 NodePos,Particle & particle) {
 	auto& node = grid.Get(static_cast<int>(NodePos.x), static_cast<int>(NodePos.y));
 	glm::dvec2 Diff = particle.Position - (NodePos);
 	double Weighting = WeightPoly(Diff);
+	particle.Velocity += node.Velocity * Weighting;
 	particle.Acceleration += node.Acceleration * Weighting;
 	glm::dvec2 GradWeight = WeightGradPoly(Diff);
 	glm::dvec2 dvdv = node.Velocity * GradWeight;
@@ -145,7 +146,6 @@ void WaterEngine::ApplyBoundary()
 		//std::clamp(particle.Position.x, 3.0, static_cast<double>(grid.SizeX)-2.0);
 		//std::clamp(particle.Position.y, 3.0, static_cast<double>(grid.SizeY)-3.0);
 		//if (particle.Position.x < 1 || particle.Position.y < 2 || particle.Position.x > grid.SizeX - 2  || particle.Position.y - 2 > grid.SizeY) {
-		glm::dvec2 del = particle.Position - particle.PositionOld;
 		if (particle.Position.y < 2) {
 //			particle.Velocity *= damping;
 //			particle.Position.y = 2;
@@ -191,6 +191,7 @@ void WaterEngine::UpdateParticles(){
 	{
 		auto& particle = particle_list.GetParticle(i);
 		particle.Acceleration = glm::dvec2(0,0);
+		particle.Velocity = glm::dvec2(0,0);
 		particle.StrainRate = glm::dmat2x2(0);
 		double xpos = round(particle.Position.x);
 		double ypos = round(particle.Position.y);
@@ -224,13 +225,14 @@ void WaterEngine::IntergrateGrid() {
 			voxel.Velocity /= voxel.Mass;
 			voxel.Force = voxel.Force_External + voxel.Force_Internal;
 			voxel.Acceleration = voxel.Force / voxel.Mass;
-			voxel.Velocity += voxel.Acceleration * static_cast<double>(DeltaTime);
+			//voxel.Velocity += voxel.Acceleration * static_cast<double>(DeltaTime);
 		}
 		else
 		{
 			voxel.Acceleration = glm::dvec2();
 			voxel.Velocity = glm::dvec2();
 			voxel.Force = glm::dvec2();
+			voxel.Acceleration = glm::dvec2();
 		}
 	}
 }
@@ -275,8 +277,7 @@ void WaterEngine::ApplyForces() {
 		particle.Stress.DY.y = -particle.youngsModulus * particle.Strain.DY.y;
 		*/
 		constexpr double relaxation_factor =  0.99;
-		volatile float x = particle.Strain[1][1];
-		particle.Strain += (particle.StrainRate) * DeltaTime*particle.StrainFactor * 1e3;
+		particle.Strain += (particle.StrainRate) * DeltaTime*particle.StrainFactor;
 		//std::cout << particle.Strain[1][1] << "\n";
 		//particle.Strain *= relaxation_factor;
 		if (particle.Type == 0) {
@@ -334,21 +335,8 @@ void WaterEngine::IntergrateParticles() {
 		Particle& particle = particle_list.GetParticle(i);
 		//verlet
 		glm::dvec2 old = particle.Position;
-		particle.Position += ((particle.Position - particle.PositionOld)*(1-Damping)) + (particle.Acceleration * static_cast<double>(DeltaTime * DeltaTime));
-		particle.PositionOld = old;
-		auto step = particle.Position - particle.PositionOld;
-		//Condition for stablity
-		constexpr static double maxspeed = 1e0;
-		if (abs(step.x) > maxspeed) {
-			particle.PositionOld.x = particle.Position.x - copysign(maxspeed, step.x);
-		}
-		if (abs(step.y) > maxspeed) {
-			particle.PositionOld.y = particle.Position.y - copysign(maxspeed, step.y);
-		}
-		particle.Velocity = (particle.Position - particle.PositionOld) / static_cast<double>(DeltaTime);
-		particle.Volume += particle.Strain[0][0] + particle.Strain[1][1] + (particle.Strain[0][0] * particle.Strain[1][1]);
-		auto eng = particle.Strain * (particle.Acceleration * particle.Mass);
-		particle.StrainEnergy += eng[0] + eng[1];
+
+		//particle.StrainEnergy += eng[0] + eng[1];
 //		particle.Position += (particle.Velocity * DeltaTime) + (particle.AccelerationOld * static_cast<double>(DeltaTime * DeltaTime));
 //		particle.Velocity += (particle.Acceleration + particle.AccelerationOld) * static_cast<double>(DeltaTime * 0.5);
 //		particle.Velocity *= 1 - Damping;
@@ -357,6 +345,9 @@ void WaterEngine::IntergrateParticles() {
 //Vel verlet
 //		particle.Velocity += (particle.Acceleration + particle.AccelerationOld) * 0.5 * DeltaTime;
 //		particle.Velocity += 0.5 * particle.Acceleration * DeltaTime;
+		particle.Velocity += particle.Acceleration * DeltaTime;
+		particle.Position += particle.Velocity * DeltaTime;
+		particle.Acceleration = glm::dvec2();
 		particle.Momentum = particle.Velocity * particle.Mass;
 	}
 }
@@ -409,7 +400,7 @@ void WaterEngine::AddWater(glm::dvec2 pos)
 {
 	Particle p;
 	p.Position = pos;
-	p.PositionOld = p.Position;
+	//p.PositionOld = p.Position;
 	particle_list.AddParticle(p);
 }
 void WaterEngine::DumpParticles()

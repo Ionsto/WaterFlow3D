@@ -18,7 +18,7 @@ public:
 	glm::dvec2 MousePull;
 	double MouseAttract = 0;
 	static const constexpr int MaxParticleCount = 2000;
-	static const constexpr double DeltaTime = 1e-4;
+	static const constexpr double DeltaTime = 1e-3;
 	static constexpr int GridEvalSize = 1;
 	int t = 0;
 	double dtacc = 0;

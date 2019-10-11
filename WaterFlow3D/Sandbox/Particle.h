@@ -15,18 +15,14 @@ struct Particle {
 	double Volume = 1;
 	double StrainEnergy = 0;
 	glm::dvec2 Position = glm::dvec2(0);
-	glm::dvec2 PositionOld = glm::dvec2(0);
 	glm::dvec2 Velocity = glm::dvec2(0);
-	glm::dvec2 VelocityOld = glm::dvec2(0);
 	glm::dvec2 Force = glm::dvec2(0);
 	glm::dvec2 Momentum = glm::dvec2(0);
 	glm::dvec2 Acceleration = glm::dvec2(0);
-	glm::dvec2 AccelerationOld = glm::dvec2(0);
 	glm::dmat2x2 Stress = glm::dmat2x2(0);
 	static constexpr double StrainFactor = 1e0;
 	glm::dmat2x2 Strain = glm::dmat2x2(0);
 	glm::dmat2x2 StrainRate = glm::dmat2x2(0);
-	glm::dmat2x2 StrainRateOld = glm::dmat2x2(0);
 	friend std::ostream& operator<<(std::ostream& os, const Particle& p)
 	{
 /*		os	<< p.Position << ","
