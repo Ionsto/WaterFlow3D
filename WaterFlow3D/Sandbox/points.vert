@@ -1,6 +1,6 @@
 #version 430
-#define SIZEX 120.0
-#define SIZEY 120.0
+#define SIZEX 20.0
+#define SIZEY 20.0
 layout(location = 0) in vec2 position;
 layout(location = 1) in float density;
 smooth out vec4 colour;

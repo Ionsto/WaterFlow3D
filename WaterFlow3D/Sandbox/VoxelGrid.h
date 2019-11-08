@@ -6,8 +6,11 @@
 class VoxelGrid
 {
 public:
-	static constexpr int SizeX = 120;
-	static constexpr int SizeY = 120;
+	constexpr static int RealSize = 20;
+	constexpr static double GridDim = 0.5;
+	constexpr static int GridSize = static_cast<int>(static_cast<float>(RealSize) / GridDim);
+	static constexpr int SizeX = GridSize;
+	static constexpr int SizeY = GridSize;
 	//static constexpr double ScaleFactor = 0.1;
 //	std::array<Voxel, SizeX * SizeY> Raw_Data;
 	std::vector<Voxel> Raw_Data;
@@ -23,9 +26,9 @@ public:
 	}
 	Voxel& Get(int x, int y)
 	{
-		if (!InBounds(x,y)) {
-			std::cout << "Out of grid access violation\n";
-		}
+		//if (!InBounds(x,y)) {
+		//	std::cout << "Out of grid access violation\n";
+		//}
 		return Raw_Data[y + (x * SizeY)];
 	}
 };

@@ -99,13 +99,13 @@ void GameManager::PollInput()
 		int left, top, right, bottom;
 		glfwGetWindowFrameSize(Window_Handle, &left, &top, &right, &bottom);
 		glfwGetWindowSize(Window_Handle, &width, &height);
-		double x = (xpos / width) * waterengine->grid.SizeX;
-		double y = (1.0 - (ypos / height)) * waterengine->grid.SizeY;
+		double x = (xpos / width) * waterengine->grid.RealSize;
+		double y = (1.0 - (ypos / height)) * waterengine->grid.RealSize;
 		glm::dvec2 pos{ x, y };
 
 		if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
-			if (clickticker >= 0.1) {
+			if (clickticker >= 0.01) {
 				pos.x += (((rand() % 100) / 100.0f) - 0.5) * 5;
 				pos.y += (((rand() % 100) / 100.0f) - 0.5) * 5;
 				if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -122,7 +122,7 @@ void GameManager::PollInput()
 		}
 		if (glfwGetMouseButton(Window_Handle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
-			waterengine->MouseAttract = 90;
+			waterengine->MouseAttract = 50;
 			waterengine->MousePull = pos;
 		}
 

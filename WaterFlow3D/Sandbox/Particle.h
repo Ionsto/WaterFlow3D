@@ -5,13 +5,13 @@
 #include <ostream>
 struct Particle {
 	double YoungsModulus = -1e4;
-	double PoissonsRatio = 0.0;
+	double PoissonsRatio = 0.2;
 	double c1 = 0.3;
 	double c2 = 0.0;
 	double c3 = 0.0;
 	double c4 = 0.0;
-	int Type = 1;
-	double Mass = 1e0;
+	int Type = 0;
+	double Mass = 0.1;
 	double Volume = 1;
 	double StrainEnergy = 0;
 	glm::dvec2 Position = glm::dvec2(0);

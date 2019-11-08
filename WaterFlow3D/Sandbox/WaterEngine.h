@@ -7,19 +7,15 @@ class WaterEngine
 {
 private:
 	std::ofstream Logfile;
-	double WeightPolyAxis(double x);
-	double WeightPolyGradAxis(double x);
-	double WeightPoly(glm::dvec2 distance);
-	glm::dvec2 WeightGradPoly(glm::dvec2 distance);
-	double WeightLinear(glm::dvec2 distance);
-	glm::dvec2 WeightGradLinear(glm::dvec2 distance);
-
+	double WeightAxis(double x);
+	double WeightGradAxis(double x);
+	double Weight(glm::dvec2 pos);
+	glm::dvec2 WeightGrad(glm::dvec2 distance);
 public:
 	glm::dvec2 MousePull;
 	double MouseAttract = 0;
 	static const constexpr int MaxParticleCount = 2000;
 	static const constexpr double DeltaTime = 1e-3;
-	static constexpr int GridEvalSize = 1;
 	int t = 0;
 	double dtacc = 0;
 	SwapList<Particle, MaxParticleCount> particle_list;
@@ -35,7 +31,6 @@ public:
 	void ApplyBoundary();
 	void RemoveOutOfBounds();
 	void Intergrate();
-	void PreIntergrate();
 	void IntergrateGrid();
 	void IntergrateParticles();
 	void Update(double dtreal);
